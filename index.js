@@ -182,15 +182,21 @@ Player.prototype._createPlayerInterface = function () {
 	this._addEventedPropertiesList(ifaceName, propertiesList);
 
 	iface.addProperty('PlaybackStatus', {
-		type: Type('s'),
+		type: DBus.Define(String),
 		getter: function(callback) {
 			callback(that.playbackStatus || 'Stopped');
 		}
 	});
 	iface.addProperty('LoopStatus', {
-		type: Type('s'),
+		type: DBus.Define(String),
 		getter: function(callback) {
 			callback(that.loopStatus || 'None');
+		}
+	});
+	iface.addProperty('Rate', {
+		type: DBus.Define(Number),
+		getter: function(callback) {
+			callback(1);
 		}
 	});
 	iface.addProperty('Metadata', {
@@ -200,7 +206,7 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 	iface.addProperty('Volume', {
-		type: Type('d'),
+		type: DBus.Define(Number),
 		getter: function(callback) {
 			callback(that.volume || 1);
 		}
@@ -211,7 +217,30 @@ Player.prototype._createPlayerInterface = function () {
 			callback(that.position || 0);
 		}
 	});
-
+	iface.addProperty('MinimumRate', {
+		type: DBus.Define(Number),
+		getter: function(callback) {
+			callback(1);
+		}
+	});
+	iface.addProperty('MaximumRate', {
+		type: DBus.Define(Number),
+		getter: function(callback) {
+			callback(1);
+		}
+	});
+	iface.addProperty('CanGoNext', {
+		type: DBus.Define(Boolean),
+		getter: function(callback) {
+			callback(true);
+		}
+	});
+	iface.addProperty('CanGoPrevious', {
+		type: DBus.Define(Boolean),
+		getter: function(callback) {
+			callback(true);
+		}
+	});
 	iface.addProperty('CanPlay', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
