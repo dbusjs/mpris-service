@@ -18,33 +18,11 @@ function Player(opts) {
 	var that = this;
 
 	this.name = opts.name;
-	this.title = opts.title;
+	this.identity = opts.identity;
 	this.supportedUriSchemes = opts.supportedUriSchemes;
 	this.supportedMimeTypes = opts.supportedMimeTypes;
 
-	this.position = 0;
-
-	var propertiesList = ['PlaybackStatus', 'LoopStatus', 'Volume', 'Metadata'];
-	var properties = {};
-	var addProperty = function (prop) {
-		Object.defineProperty(that, lcfirst(prop), {
-			get: function () {
-				return properties[prop];
-			},
-			set: function (newValue) {
-				properties[prop] = newValue;
-
-				var changed = {};
-				changed[prop] = newValue;
-				that.obj.propertyInterface.emitSignal('PropertiesChanged', 'org.mpris.MediaPlayer2.Player', changed, []);
-			},
-			enumerable: true,
-			configurable: true
-		});
-	};
-	for (var i = 0; i < propertiesList.length; i++) {
-		addProperty(propertiesList[i]);
-	}
+	this._properties = {};
 
 	this.init();
 }
@@ -67,18 +45,56 @@ Player.prototype.init = function () {
 	this._createPlayerInterface();
 };
 
+Player.prototype._addEventedProperty = function (iface, name) {
+	var that = this;
+
+	var localName = lcfirst(name);
+	var currentValue = this[localName];
+
+	Object.defineProperty(this, localName, {
+		get: function () {
+			return that._properties[name];
+		},
+		set: function (newValue) {
+			that._properties[name] = newValue;
+
+			var changed = {};
+			changed[name] = newValue;
+			that.obj.propertyInterface.emitSignal('PropertiesChanged', iface, changed, []);
+		},
+		enumerable: true,
+		configurable: true
+	});
+
+	if (currentValue) {
+		this[localName] = currentValue;
+	}
+};
+
+Player.prototype._addEventedPropertiesList = function (iface, props) {
+	for (var i = 0; i < props.length; i++) {
+		this._addEventedProperty(iface, props[i]);
+	}
+};
+
 /**
  * @see http://specifications.freedesktop.org/mpris-spec/latest/Media_Player.html
  */
 Player.prototype._createRootInterface = function () {
 	var that = this;
-	var iface = this.obj.createInterface('org.mpris.MediaPlayer2');
+	var ifaceName = 'org.mpris.MediaPlayer2',
+		iface = this.obj.createInterface(ifaceName);
+	
+	// Methods
 	iface.addMethod('Raise', {}, function () {
 		that.emit('raise');
 	});
 	iface.addMethod('Quit', {}, function () {
 		that.emit('quit');
 	});
+
+	// Properties
+	this._addEventedPropertiesList(ifaceName, ['Identity', 'SupportedUriSchemes', 'SupportedMimeTypes']);
 
 	iface.addProperty('CanQuit', {
 		type: Type('b'),
@@ -101,7 +117,7 @@ Player.prototype._createRootInterface = function () {
 	iface.addProperty('Identity', {
 		type: Type('s'),
 		getter: function(callback) {
-			callback(that.title);
+			callback(that.identity || '');
 		}
 	});
 	/*iface.addProperty('DesktopEntry', {
@@ -132,8 +148,10 @@ Player.prototype._createRootInterface = function () {
  */
 Player.prototype._createPlayerInterface = function () {
 	var that = this;
-	var iface = this.obj.createInterface('org.mpris.MediaPlayer2.Player');
+	var ifaceName = 'org.mpris.MediaPlayer2.Player',
+		iface = this.obj.createInterface(ifaceName);
 
+	// Methods
 	var eventMethods = ['Next', 'Previous', 'Pause', 'PlayPause', 'Stop', 'Play'];
 	var addEventMethod = function (method) {
 		iface.addMethod(method, {}, function () {
@@ -156,6 +174,12 @@ Player.prototype._createPlayerInterface = function () {
 		console.log('OpenUri', uri);
 		that.emit('open', { uri: uri });
 	});
+
+	// Properties
+	this.position = 0;
+
+	var propertiesList = ['PlaybackStatus', 'LoopStatus', 'Volume', 'Metadata'];
+	this._addEventedPropertiesList(ifaceName, propertiesList);
 
 	iface.addProperty('PlaybackStatus', {
 		type: Type('s'),
@@ -213,6 +237,7 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 
+	// Signals
 	iface.addSignal('Seeked', {
 		types: [Type('x')]
 	});

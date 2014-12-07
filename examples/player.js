@@ -2,7 +2,7 @@ var Player = require('..');
 
 var player = Player({
 	name: 'nodejs',
-	title: 'Node.js media player',
+	identity: 'Node.js media player',
 	supportedUriSchemes: ['file'],
 	supportedMimeTypes: ['audio/mpeg', 'application/ogg']
 });
