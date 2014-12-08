@@ -18,7 +18,7 @@ var player = Player({
 
 Interfaces: `org.mpris.MediaPlayer2`, `org.mpris.MediaPlayer2.Player`.
 
-Events: `raise`, `quit`, `next`, `previous`, `pause`, `playpause`, `stop`, `play`, `seek`, `position`, `open`.
+Events: `raise`, `quit`, `next`, `previous`, `pause`, `playpause`, `stop`, `play`, `seek`, `position`, `open`, `volume`.
 
 Properties: `identity`, `supportedUriSchemes`, `supportedMimeTypes`, `playbackStatus`, `loopStatus`, `volume`, `metadata`.
 

@@ -155,7 +155,7 @@ Player.prototype._createPlayerInterface = function () {
 	var eventMethods = ['Next', 'Previous', 'Pause', 'PlayPause', 'Stop', 'Play'];
 	var addEventMethod = function (method) {
 		iface.addMethod(method, {}, function () {
-			that.emit(lcfirst(method));
+			that.emit(method.toLowerCase());
 		});
 	};
 	for (var i = 0; i < eventMethods.length; i++) {
@@ -209,6 +209,11 @@ Player.prototype._createPlayerInterface = function () {
 		type: DBus.Define(Number),
 		getter: function(callback) {
 			callback(that.volume || 1);
+		},
+		setter: function (value, next) {
+			that.volume = value;
+			that.emit('volume', value);
+			next();
 		}
 	});
 	iface.addProperty('Position', {
