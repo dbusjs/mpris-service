@@ -163,22 +163,19 @@ Player.prototype._createPlayerInterface = function () {
 	}
 
 	iface.addMethod('Seek', { in: [ Type('x') ] }, function (delta) {
-		console.log('Seek', delta);
 		that.emit('seek', { delta: delta, position: that.position + delta });
 	});
 	iface.addMethod('SetPosition', { in: [ Type('o'), Type('x') ] }, function (trackId, pos) {
-		console.log('SetPosition', trackId, pos);
 		that.emit('position', { trackId: trackId, position: pos });
 	});
 	iface.addMethod('OpenUri', { in: [ Type('s') ] }, function (uri) {
-		console.log('OpenUri', uri);
 		that.emit('open', { uri: uri });
 	});
 
 	// Properties
 	this.position = 0;
 
-	var propertiesList = ['PlaybackStatus', 'LoopStatus', 'Volume', 'Metadata'];
+	var propertiesList = ['PlaybackStatus', 'LoopStatus', 'Rate', 'Shuffle', 'Metadata', 'Volume'];
 	this._addEventedPropertiesList(ifaceName, propertiesList);
 
 	iface.addProperty('PlaybackStatus', {
@@ -191,12 +188,33 @@ Player.prototype._createPlayerInterface = function () {
 		type: DBus.Define(String),
 		getter: function(callback) {
 			callback(that.loopStatus || 'None');
+		},
+		setter: function (value, next) {
+			that.loopStatus = value;
+			that.emit('loopStatus', value);
+			next();
 		}
 	});
 	iface.addProperty('Rate', {
 		type: DBus.Define(Number),
 		getter: function(callback) {
-			callback(1);
+			callback(that.rate || 1);
+		},
+		setter: function (value, next) {
+			that.rate = value;
+			that.emit('rate', value);
+			next();
+		}
+	});
+	iface.addProperty('Shuffle', {
+		type: DBus.Define(Boolean),
+		getter: function(callback) {
+			callback(that.shuffle || false);
+		},
+		setter: function (value, next) {
+			that.shuffle = value;
+			that.emit('shuffle', value);
+			next();
 		}
 	});
 	iface.addProperty('Metadata', {
@@ -225,49 +243,49 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('MinimumRate', {
 		type: DBus.Define(Number),
 		getter: function(callback) {
-			callback(1);
+			callback(that.minimumRate || 1);
 		}
 	});
 	iface.addProperty('MaximumRate', {
 		type: DBus.Define(Number),
 		getter: function(callback) {
-			callback(1);
+			callback(that.maximumRate || 1);
 		}
 	});
 	iface.addProperty('CanGoNext', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canGoNext != 'undefined') ? that.canGoNext : true);
 		}
 	});
 	iface.addProperty('CanGoPrevious', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canGoPrevious != 'undefined') ? that.canGoPrevious : true);
 		}
 	});
 	iface.addProperty('CanPlay', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canPlay != 'undefined') ? that.canPlay : true);
 		}
 	});
 	iface.addProperty('CanPause', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canPause != 'undefined') ? that.canPause : true);
 		}
 	});
 	iface.addProperty('CanSeek', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canSeek != 'undefined') ? that.canSeek : true);
 		}
 	});
 	iface.addProperty('CanControl', {
 		type: DBus.Define(Boolean),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canControl != 'undefined') ? that.canControl : true);
 		}
 	});
 
