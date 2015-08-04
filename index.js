@@ -34,7 +34,7 @@ Player.prototype.init = function () {
 	this.service = dbus.registerService('session', this.serviceName);
 	this.obj = this.service.createObject('/org/mpris/MediaPlayer2');
 
-	// TODO: must be defined in dbus module (pull request pending)
+	// TODO: must be defined in dbus module
 	this.obj.propertyInterface.addSignal('PropertiesChanged', {
 		types: [Type('s', 'interface_name'), Type('a{sv}', 'changed_properties'), Type('as', 'invalidated_properties')]
 	});
@@ -94,24 +94,43 @@ Player.prototype._createRootInterface = function () {
 	});
 
 	// Properties
-	this._addEventedPropertiesList(ifaceName, ['Identity', 'SupportedUriSchemes', 'SupportedMimeTypes']);
+	this._addEventedPropertiesList(ifaceName, ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes']);
 
 	iface.addProperty('CanQuit', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canQuit != 'undefined') ? that.canQuit : true);
+		}
+	});
+	iface.addProperty('Fullscreen', {
+		type: Type('b'),
+		getter: function(callback) {
+			callback(that.fulscreen || false);
+		},
+		setter: function (value, next) {
+			if (!that.canSetFullscreen) return next();
+
+			that.fullscreen = value;
+			that.emit('fullscreen', value);
+			next();
 		}
 	});
 	iface.addProperty('CanRaise', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(true);
+			callback((typeof that.canRaise != 'undefined') ? that.canRaise : true);
+		}
+	});
+	iface.addProperty('CanSetFullscreen', {
+		type: Type('b'),
+		getter: function(callback) {
+			callback((typeof that.canSetFullscreen != 'undefined') ? that.canSetFullscreen : false);
 		}
 	});
 	iface.addProperty('HasTrackList', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(false);
+			callback(false); // TODO: implement org.mpris.MediaPlayer2.TrackList
 		}
 	});
 	iface.addProperty('Identity', {
@@ -120,12 +139,15 @@ Player.prototype._createRootInterface = function () {
 			callback(that.identity || '');
 		}
 	});
-	/*iface.addProperty('DesktopEntry', {
-		type: Type('s'),
-		getter: function(callback) {
-			callback('lol');
-		}
-	});*/
+	if (this.desktopEntry) {
+		// This property is optional
+		iface.addProperty('DesktopEntry', {
+			type: Type('s'),
+			getter: function(callback) {
+				callback(that.desktopEntry || '');
+			}
+		});
+	}
 	iface.addProperty('SupportedUriSchemes', {
 		type: Type('as'),
 		getter: function(callback) {
@@ -179,13 +201,13 @@ Player.prototype._createPlayerInterface = function () {
 	this._addEventedPropertiesList(ifaceName, propertiesList);
 
 	iface.addProperty('PlaybackStatus', {
-		type: DBus.Define(String),
+		type: Type('s'),
 		getter: function(callback) {
 			callback(that.playbackStatus || 'Stopped');
 		}
 	});
 	iface.addProperty('LoopStatus', {
-		type: DBus.Define(String),
+		type: Type('s'),
 		getter: function(callback) {
 			callback(that.loopStatus || 'None');
 		},
@@ -196,7 +218,7 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 	iface.addProperty('Rate', {
-		type: DBus.Define(Number),
+		type: Type('d'),
 		getter: function(callback) {
 			callback(that.rate || 1);
 		},
@@ -207,7 +229,7 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 	iface.addProperty('Shuffle', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback(that.shuffle || false);
 		},
@@ -224,7 +246,7 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 	iface.addProperty('Volume', {
-		type: DBus.Define(Number),
+		type: Type('d'),
 		getter: function(callback) {
 			callback(that.volume || 1);
 		},
@@ -241,49 +263,49 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 	iface.addProperty('MinimumRate', {
-		type: DBus.Define(Number),
+		type: Type('d'),
 		getter: function(callback) {
 			callback(that.minimumRate || 1);
 		}
 	});
 	iface.addProperty('MaximumRate', {
-		type: DBus.Define(Number),
+		type: Type('d'),
 		getter: function(callback) {
 			callback(that.maximumRate || 1);
 		}
 	});
 	iface.addProperty('CanGoNext', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canGoNext != 'undefined') ? that.canGoNext : true);
 		}
 	});
 	iface.addProperty('CanGoPrevious', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canGoPrevious != 'undefined') ? that.canGoPrevious : true);
 		}
 	});
 	iface.addProperty('CanPlay', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canPlay != 'undefined') ? that.canPlay : true);
 		}
 	});
 	iface.addProperty('CanPause', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canPause != 'undefined') ? that.canPause : true);
 		}
 	});
 	iface.addProperty('CanSeek', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canSeek != 'undefined') ? that.canSeek : true);
 		}
 	});
 	iface.addProperty('CanControl', {
-		type: DBus.Define(Boolean),
+		type: Type('b'),
 		getter: function(callback) {
 			callback((typeof that.canControl != 'undefined') ? that.canControl : true);
 		}

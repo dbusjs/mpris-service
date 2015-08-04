@@ -31,4 +31,6 @@ setTimeout(function () {
 	};
 
 	player.playbackStatus = 'Playing';
+
+	console.log('Now playing: Lolol - Adele - 21');
 }, 3000);
