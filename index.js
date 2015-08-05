@@ -440,11 +440,19 @@ Player.prototype.getTrack = function (trackId) {
 
 Player.prototype.addTrack = function (track) {
 	this.tracks.push(track);
+
+	var afterTrack = '/org/mpris/MediaPlayer2/TrackList/NoTrack';
+	if (this.tracks.length > 2) {
+		afterTrack = this.tracks[this.tracks.length - 2]['mpris:trackid'];
+	}
+	that.interfaces.playlists.emitSignal('TrackAdded', afterTrack);
 };
 
 Player.prototype.removeTrack = function (trackId) {
 	var i = this.getTrackIndex(trackId);
 	this.tracks.splice(i, 1);
+
+	that.interfaces.playlists.emitSignal('TrackRemoved', trackId);
 };
 
 /**

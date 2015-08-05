@@ -23,7 +23,7 @@ player.on('quit', function () {
 setTimeout(function () {
 	// @see http://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/
 	player.metadata = {
-		'mpris:trackid': '0',
+		'mpris:trackid': player.objectPath('track/0'),
 		'mpris:length': 60 * 1000 * 1000, // In microseconds
 		'mpris:artUrl': 'http://www.adele.tv/images/facebook/adele.jpg',
 		'xesam:title': 'Lolol',
