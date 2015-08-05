@@ -4,7 +4,8 @@ var player = Player({
 	name: 'nodejs',
 	identity: 'Node.js media player',
 	supportedUriSchemes: ['file'],
-	supportedMimeTypes: ['audio/mpeg', 'application/ogg']
+	supportedMimeTypes: ['audio/mpeg', 'application/ogg'],
+	supportedInterfaces: ['player']
 });
 
 // Events

@@ -22,6 +22,8 @@ function Player(opts) {
 	this.supportedUriSchemes = opts.supportedUriSchemes;
 	this.supportedMimeTypes = opts.supportedMimeTypes;
 
+	this.supportedInterfaces = opts.supportedInterfaces || ['player'];
+
 	this._properties = {};
 
 	this.init();
@@ -40,9 +42,22 @@ Player.prototype.init = function () {
 	});
 	this.obj.propertyInterface.update();
 
+	// Init interfaces
 	this.interfaces = {};
 	this._createRootInterface();
-	this._createPlayerInterface();
+	if (this.supportedInterfaces.indexOf('player') >= 0) {
+		this._createPlayerInterface();
+	}
+	if (this.supportedInterfaces.indexOf('trackList') >= 0) {
+		this._createTrackListInterface();
+	}
+	if (this.supportedInterfaces.indexOf('playlists') >= 0) {
+		this._createPlaylistsInterface();
+	}
+};
+
+Player.prototype.objectPath = function (subpath) {
+	return '/org/node/mediaplayer/'+this.name+'/'+(subpath || '');
 };
 
 Player.prototype._addEventedProperty = function (iface, name) {
@@ -61,6 +76,8 @@ Player.prototype._addEventedProperty = function (iface, name) {
 			var changed = {};
 			changed[name] = newValue;
 			that.obj.propertyInterface.emitSignal('PropertiesChanged', iface, changed, []);
+
+			console.log('changed', changed);
 		},
 		enumerable: true,
 		configurable: true
@@ -86,6 +103,7 @@ Player.prototype._createRootInterface = function () {
 		iface = this.obj.createInterface(ifaceName);
 	
 	// Methods
+
 	iface.addMethod('Raise', {}, function () {
 		that.emit('raise');
 	});
@@ -94,7 +112,9 @@ Player.prototype._createRootInterface = function () {
 	});
 
 	// Properties
-	this._addEventedPropertiesList(ifaceName, ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes']);
+
+	var eventedProps = ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes'];
+	this._addEventedPropertiesList(ifaceName, eventedProps);
 
 	iface.addProperty('CanQuit', {
 		type: Type('b'),
@@ -130,7 +150,7 @@ Player.prototype._createRootInterface = function () {
 	iface.addProperty('HasTrackList', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(false); // TODO: implement org.mpris.MediaPlayer2.TrackList
+			callback(false);
 		}
 	});
 	iface.addProperty('Identity', {
@@ -184,21 +204,26 @@ Player.prototype._createPlayerInterface = function () {
 		addEventMethod(eventMethods[i]);
 	}
 
-	iface.addMethod('Seek', { in: [ Type('x') ] }, function (delta) {
+	iface.addMethod('Seek', { in: [ Type('x', 'Offset') ] }, function (delta) {
 		that.emit('seek', { delta: delta, position: that.position + delta });
 	});
-	iface.addMethod('SetPosition', { in: [ Type('o'), Type('x') ] }, function (trackId, pos) {
+	iface.addMethod('SetPosition', { in: [ Type('o', 'TrackId'), Type('x', 'Position') ] }, function (trackId, pos) {
 		that.emit('position', { trackId: trackId, position: pos });
 	});
-	iface.addMethod('OpenUri', { in: [ Type('s') ] }, function (uri) {
+	iface.addMethod('OpenUri', { in: [ Type('s', 'Uri') ] }, function (uri) {
 		that.emit('open', { uri: uri });
+	});
+
+	// Signals
+	iface.addSignal('Seeked', {
+		types: [Type('x', 'Position')]
 	});
 
 	// Properties
 	this.position = 0;
 
-	var propertiesList = ['PlaybackStatus', 'LoopStatus', 'Rate', 'Shuffle', 'Metadata', 'Volume'];
-	this._addEventedPropertiesList(ifaceName, propertiesList);
+	var eventedProps = ['PlaybackStatus', 'LoopStatus', 'Rate', 'Shuffle', 'Metadata', 'Volume'];
+	this._addEventedPropertiesList(ifaceName, eventedProps);
 
 	iface.addProperty('PlaybackStatus', {
 		type: Type('s'),
@@ -311,11 +336,6 @@ Player.prototype._createPlayerInterface = function () {
 		}
 	});
 
-	// Signals
-	iface.addSignal('Seeked', {
-		types: [Type('x')]
-	});
-
 	iface.update();
 	this.interfaces.player = iface;
 };
@@ -323,6 +343,215 @@ Player.prototype._createPlayerInterface = function () {
 Player.prototype.seeked = function (delta) {
 	this.position += delta || 0;
 	this.interfaces.player.emitSignal('Seeked', this.position);
+};
+
+/**
+ * @see http://specifications.freedesktop.org/mpris-spec/latest/Track_List_Interface.html
+ */
+Player.prototype._createTrackListInterface = function () {
+	var that = this;
+	var ifaceName = 'org.mpris.MediaPlayer2.TrackList',
+		iface = this.obj.createInterface(ifaceName);
+
+	this.tracks = [];
+
+	// Methods
+
+	iface.addMethod('GetTracksMetadata', {
+		in: [ Type('ao', 'TrackIds') ],
+		out: Type('aa{sv}', 'Metadata')
+	}, function (trackIds) {
+		return that.tracks.filter(function (track) {
+			return (trackIds.indexOf(track['mpris:trackid']) >= 0);
+		});
+	});
+
+	iface.addMethod('AddTrack', {
+		in: [ Type('s', 'Uri'), Type('o', 'AfterTrack'), Type('b', 'SetAsCurrent') ]
+	}, function (uri, afterTrack, setAsCurrent) {
+		that.emit('addTrack', {
+			uri: uri,
+			afterTrack: afterTrack,
+			setAsCurrent: setAsCurrent
+		});
+	});
+
+	iface.addMethod('RemoveTrack', { in: [ Type('o', 'TrackId') ] }, function (trackId) {
+		that.emit('removeTrack', trackId);
+	});
+
+	iface.addMethod('GoTo', { in: [ Type('o', 'TrackId') ] }, function (trackId) {
+		that.emit('goTo', trackId);
+	});
+
+	// Signals
+
+	iface.addSignal('TrackListReplaced', {
+		types: [Type('ao', 'Tracks'), Type('o', 'CurrentTrack')]
+	});
+
+	iface.addSignal('TrackAdded', {
+		types: [Type('a{sv}', 'Metadata'), Type('o', 'AfterTrack')]
+	});
+
+	iface.addSignal('TrackRemoved', {
+		types: [Type('o', 'TrackId')]
+	});
+
+	iface.addSignal('TrackMetadataChanged', {
+		types: [Type('o', 'TrackId'), Type('a{sv}', 'Metadata')]
+	});
+
+	// Properties
+
+	iface.addProperty('Tracks', {
+		type: Type('ao'),
+		getter: function(callback) {
+			callback(that.tracks);
+		}
+	});
+
+	iface.addProperty('CanEditTracks', {
+		type: Type('b'),
+		getter: function(callback) {
+			callback((typeof that.canEditTracks != 'undefined') ? that.canEditTracks : false);
+		}
+	});
+
+	iface.update();
+	this.interfaces.trackList = iface;
+};
+
+Player.prototype.getTrackIndex = function (trackId) {
+	for (var i = 0; i < this.tracks.length; i++) {
+		var track = this.tracks[i];
+
+		if (track['mpris:trackid'] == trackId) {
+			return i;
+		}
+	}
+
+	return -1;
+};
+
+Player.prototype.getTrack = function (trackId) {
+	return this.tracks[this.getTrackIndex(trackId)];
+};
+
+Player.prototype.addTrack = function (track) {
+	this.tracks.push(track);
+};
+
+Player.prototype.removeTrack = function (trackId) {
+	var i = this.getTrackIndex(trackId);
+	this.tracks.splice(i, 1);
+};
+
+/**
+ * @see http://specifications.freedesktop.org/mpris-spec/latest/Playlists_Interface.html
+ */
+Player.prototype._createPlaylistsInterface = function () {
+	var that = this;
+	var ifaceName = 'org.mpris.MediaPlayer2.Playlists',
+		iface = this.obj.createInterface(ifaceName);
+
+	that.playlists = [];
+
+	// Methods
+
+	iface.addMethod('ActivatePlaylist', { in: [ Type('o', 'PlaylistId') ] }, function (playlistId) {
+		that.emit('activatePlaylist', playlistId);
+	});
+
+	iface.addMethod('GetPlaylists', {
+		in: [ Type('u', 'Index'), Type('u', 'MaxCount'), Type('s', 'Order'), Type('b', 'ReverseOrder') ],
+		out: Type('a(oss)', 'Playlists')
+	}, function (index, maxCount, order, reverseOrder, callback) {
+		var playlists = that.playlists.slice(index, maxCount).sort(function (a, b) {
+			var ret = 1;
+
+			switch (order) {
+				case 'Alphabetical':
+					ret = (a.Name > b.Name) ? 1 : -1;
+					break;
+				//case 'CreationDate':
+				//case 'ModifiedDate':
+				//case 'LastPlayDate':
+				case 'UserDefined':
+					break;
+			}
+
+			if (reverseOrder) ret = -ret;
+			return ret;
+		});
+
+		callback(playlists);
+	});
+
+	// Signals
+
+	iface.addSignal('PlaylistChanged', {
+		types: [Type('(oss)', 'Playlist')]
+	});
+
+	// Properties
+
+	this._addEventedPropertiesList(ifaceName, ['PlaylistCount', 'ActivePlaylist']);
+
+	iface.addProperty('PlaylistCount', {
+		type: Type('u'),
+		getter: function(callback) {
+			callback(that.playlistCount || 0);
+		}
+	});
+
+	iface.addProperty('Orderings', {
+		type: Type('as'),
+		getter: function(callback) {
+			callback(['Alphabetical', 'UserDefined']);
+		}
+	});
+
+	iface.addProperty('ActivePlaylist', {
+		type: Type('(b(oss))'),
+		getter: function(callback) {
+			callback(that.activePlaylist || { Valid: false });
+		}
+	});
+
+	iface.update();
+	this.interfaces.playlists = iface;
+};
+
+Player.prototype.getPlaylistIndex = function (playlistId) {
+	for (var i = 0; i < this.playlists.length; i++) {
+		var playlist = this.playlists[i];
+
+		if (playlist.Id === playlistId) {
+			return i;
+		}
+	}
+
+	return -1;
+};
+
+Player.prototype.setPlaylists = function (playlists) {
+	this.playlists = playlists;
+	this.playlistCount = playlists.length;
+
+	var that = this;
+	this.playlists.forEach(function (playlist) {
+		that.interfaces.playlists.emitSignal('PlaylistChanged', playlist);
+	});
+};
+
+Player.prototype.setActivePlaylist = function (playlistId) {
+	var i = this.getPlaylistIndex(playlistId);
+
+	this.activePlaylist = {
+		Valid: (i >= 0) ? true : false,
+		Playlist: this.playlists[i]
+	};
 };
 
 module.exports = Player;
