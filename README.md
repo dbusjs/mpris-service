@@ -42,6 +42,7 @@ Properties:
 * `name`
 * `supportedUriSchemes`
 * `supportedMimeTypes`
+* `desktopEntry`
 
 ## Player
 
