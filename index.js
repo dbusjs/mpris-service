@@ -21,6 +21,7 @@ function Player(opts) {
 	this.identity = opts.identity;
 	this.supportedUriSchemes = opts.supportedUriSchemes;
 	this.supportedMimeTypes = opts.supportedMimeTypes;
+	this.desktopEntry = opts.desktopEntry;
 
 	this.supportedInterfaces = opts.supportedInterfaces || ['player'];
 
