@@ -5,7 +5,7 @@ Node.js implementation for the MPRIS D-Bus Interface Specification to create a m
 Docs: http://specifications.freedesktop.org/mpris-spec/latest/
 
 ```js
-var Player = require(`mpris-service`);
+var Player = require('mpris-service');
 
 var player = Player({
 	name: 'nodejs',
