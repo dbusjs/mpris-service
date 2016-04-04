@@ -78,7 +78,6 @@ Player.prototype._addEventedProperty = function (iface, name) {
 			changed[name] = newValue;
 			that.obj.propertyInterface.emitSignal('PropertiesChanged', iface, changed, []);
 
-			console.log('changed', changed);
 		},
 		enumerable: true,
 		configurable: true
