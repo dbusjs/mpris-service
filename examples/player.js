@@ -25,7 +25,7 @@ setTimeout(function () {
 	player.metadata = {
 		'mpris:trackid': player.objectPath('track/0'),
 		'mpris:length': 60 * 1000 * 1000, // In microseconds
-		'mpris:artUrl': 'http://www.adele.tv/images/facebook/adele.jpg',
+		'mpris:artUrl': 'http://cdn.beggars.com.s3-eu-west-1.amazonaws.com/adele/wp-content/uploads/2015/10/01091631/adele-25-packshot.jpg',
 		'xesam:title': 'Lolol',
 		'xesam:album': '21',
 		'xesam:artist': 'Adele'
