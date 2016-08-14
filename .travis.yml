@@ -15,6 +15,5 @@ addons:
       - libdbus-1-dev
       - libglib2.0-dev
       - libexpat1-dev
-before_install:
-  - dpkg-query -L libexpat1-dev
-  - dpkg-query -L libexpat1
+dist: trusty # precise has expat v2.0, need v2.1
+sudo: required # Needed for trusty
