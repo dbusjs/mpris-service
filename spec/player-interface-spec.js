@@ -1,3 +1,5 @@
+'use strict';
+
 const dbus = require('dbus-native');
 
 const Player = require('../index');

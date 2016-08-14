@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   playername: () => {
     return 'test' + (Math.random() * 1000 | 0).toString();
