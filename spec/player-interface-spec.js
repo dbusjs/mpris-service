@@ -7,7 +7,7 @@ const helpers = require('./helpers/helpers');
 const objectpath = '/org/mpris/MediaPlayer2';
 const namespace = 'org.mpris.MediaPlayer2.Player';
 
-const eventmap = {
+const events = {
   next: {
     method: 'Next',
     args: []
@@ -52,24 +52,26 @@ describe('player interface', () => {
     const name = helpers.playername();
     const player = new Player({ name });
 
-    const events =  Object.keys(eventmap);
-
-    const promises = events.map((event) => {
-      return helpers.waitForEvent(player, event);
-    });
-
-    Promise.all(promises).then(done).catch(fail);
-
     const service = dbus.sessionBus().getService(helpers.servicename(name));
     service.getInterface(objectpath, namespace, (err, player) => {
       if (err) {
         fail(err);
       }
 
-      events.forEach((event) => {
-        const method = eventmap[event];
-        player[method.method].apply(player, method.args);
+      let promise = Promise.resolve();
+      Object.keys(events).forEach((name) => {
+        const call = events[name];
+
+        promise.then(() => {
+          const wait = helpers.waitForEvent(player, name);
+
+          player[call.method].apply(player, call.args);
+
+          return wait;
+        });
       });
+
+      promise.then(done, fail);
     });
   });
 });
