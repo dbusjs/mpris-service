@@ -4,7 +4,7 @@
   "description": "Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/jasmine"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
