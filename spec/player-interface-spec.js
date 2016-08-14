@@ -10,41 +10,40 @@ const namespace = 'org.mpris.MediaPlayer2.Player';
 const events = {
   next: {
     method: 'Next',
-    args: []
+    args: () => { return []; }
   },
   previous: {
     method: 'Previous',
-    args: []
+    args: () => { return []; }
   },
   play: {
     method: 'Play',
-    args: []
+    args: () => { return []; }
   },
   pause: {
     method: 'Pause',
-    args: []
+    args: () => { return []; }
   },
   playpause: {
     method: 'PlayPause',
-    args: []
+    args: () => { return []; }
   },
   stop: {
     method: 'Stop',
-    agrs: []
+    args: () => { return []; }
   },
   open: {
     method: 'OpenUri',
-    args: ['/home/foo']
+    args: () => { return ['/home/foo']; }
   },
   seek: {
     method: 'Seek',
-    args: [3.14 * 10e6]
+    args: () => { return [3.14 * 10e6]; }
   },
-  // TODO: figure out how to pass first arg
-  // position: {
-  //   method: 'SetPosition',
-  //   args: ['playlist/0', 3.14 * 10e6]
-  // }
+  position: {
+    method: 'SetPosition',
+    args: (player) => { return [player.objectPath('playlist/0'), 3.14 * 10e6]; }
+  }
 };
 
 describe('player interface', () => {
@@ -77,7 +76,7 @@ describe('player interface', () => {
       promise = promise.then(() => {
         const wait = helpers.waitForEvent(player, name);
 
-        object[call.method].apply(object, call.args);
+        object[call.method].apply(object, call.args(player));
 
         return wait;
       });

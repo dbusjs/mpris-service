@@ -5,8 +5,9 @@ const Player = require('../../index');
 let player;
 
 module.exports = {
-  getPlayer: (name) => {
-    player = player || new Player({ name })
+  getPlayer: (name, interfaces) => {
+    const supportedInterfaces = ['player', 'trackList', 'playlists'];
+    player = player || new Player({ name, supportedInterfaces });
     return player;
   },
   playername: () => {
