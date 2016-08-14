@@ -187,4 +187,9 @@ Player.prototype.setActivePlaylist = function (playlistId) {
 	};
 };
 
+Player.prototype.close = function () {
+	// TODO: submit a patch upstream
+	dbus._dbus.releaseBus(this.service.bus.connection);
+};
+
 module.exports = Player;
