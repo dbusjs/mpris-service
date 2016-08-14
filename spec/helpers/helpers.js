@@ -18,7 +18,7 @@ module.exports = {
   },
   waitForEvent: (player, event) => {
     return new Promise((resolve) => {
-      player.on(event, resolve);
+      player.once(event, resolve);
     });
   }
 };
