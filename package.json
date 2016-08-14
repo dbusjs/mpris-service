@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine",
-    "lint": "eslint spec/"
+    "lint": "eslint spec/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -41,7 +41,8 @@
     "extends": "eslint:recommended",
     "rules": {
       "indent": ["error", 2],
-      "keyword-spacing": ["error", { "before": true, "after": true }]
+      "keyword-spacing": ["error", { "before": true, "after": true }],
+      "object-curly-spacing": ["error", "always"]
     }
   }
 }

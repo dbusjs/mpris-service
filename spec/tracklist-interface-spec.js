@@ -4,11 +4,19 @@ const dbus = require('dbus-native');
 const helpers = require('./helpers/helpers');
 
 const objectpath = '/org/mpris/MediaPlayer2';
-const namespace = 'org.mpris.MediaPlayer2.Playlists';
+const namespace = 'org.mpris.MediaPlayer2.TrackList';
 
 const events = {
-  activatePlaylist: {
-    method: 'ActivatePlaylist',
+  addTrack: {
+    method: 'AddTrack',
+    args: (player) => { return ['/home/foo', player.objectPath('playlist/0'), false]; }
+  },
+  removeTrack: {
+    method: 'RemoveTrack',
+    args: (player) => { return [player.objectPath('playlist/0')]; }
+  },
+  goTo: {
+    method: 'GoTo',
     args: (player) => { return [player.objectPath('playlist/0')]; }
   }
 };
