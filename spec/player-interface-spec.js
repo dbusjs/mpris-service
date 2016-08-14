@@ -1,29 +1,32 @@
-var dbus = require('dbus-native');
+const dbus = require('dbus-native');
 
-var Player = require('../index');
+const Player = require('../index');
 
-var playername = function() {
+const playername = () => {
   return 'test' + (Math.random() * 1000 | 0).toString();
 };
 
-var servicename = function(player) {
+const servicename = (player) => {
   return 'org.mpris.MediaPlayer2.' + player;
 };
 
-var objectpath = '/org/mpris/MediaPlayer2';
-var namespace = 'org.mpris.MediaPlayer2.Player';
+const objectpath = '/org/mpris/MediaPlayer2';
+const namespace = 'org.mpris.MediaPlayer2.Player';
 
-describe('player interface', function() {
-  it('should emit "next" event on .Next() method call', function(done) {
-    var name = playername();
-    var player = new Player({
-      name: name
+describe('player interface', () => {
+  it('should emit "next" event on .Next() method call', (done) => {
+    const name = playername();
+    const player = new Player({
+      name
     });
 
     player.on('next', done);
 
-    var service = dbus.sessionBus().getService(servicename(name));
-    service.getInterface(objectpath, namespace, function(err, player) {
+    const service = dbus.sessionBus().getService(servicename(name));
+    service.getInterface(objectpath, namespace, (err, player) => {
+      if (err) {
+        fail(err);
+      }
       player.Next();
     });
   });
