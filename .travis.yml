@@ -12,6 +12,5 @@ addons:
 dist: trusty # precise has expat v2.0, need v2.1
 sudo: required # Needed for trusty
 script:
-  - dbus-launch
   - npm run lint
-  - npm test
+  - dbus-launch npm test
