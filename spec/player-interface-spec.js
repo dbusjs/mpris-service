@@ -50,30 +50,38 @@ const events = {
 };
 
 describe('player interface', () => {
-  it('should emit events that correspond to method calls', (done) => {
-    const name = helpers.playername();
-    const player = new Player({ name });
+  let name, player, service, object;
 
-    const service = dbus.sessionBus().getService(helpers.servicename(name));
-    service.getInterface(objectpath, namespace, (err, player) => {
+  beforeAll((done) => {
+    name = helpers.playername();
+    player = new Player({ name });
+    service = dbus.sessionBus().getService(helpers.servicename(name));
+
+    service.getInterface(objectpath, namespace, (err, obj) => {
       if (err) {
         fail(err);
       }
 
-      let promise = Promise.resolve();
-      Object.keys(events).forEach((name) => {
-        const call = events[name];
-
-        promise.then(() => {
-          const wait = helpers.waitForEvent(player, name);
-
-          player[call.method].apply(player, call.args);
-
-          return wait;
-        });
-      });
-
-      promise.then(done, fail);
+      object = obj;
+      done();
     });
+  });
+
+  it('should emit events that correspond to method calls', (done) => {
+    let promise = Promise.resolve();
+
+    Object.keys(events).forEach((name) => {
+      const call = events[name];
+
+      promise.then(() => {
+        const wait = helpers.waitForEvent(player, name);
+
+        object[call.method].apply(object, call.args);
+
+        return wait;
+      });
+    });
+
+    promise.then(done, fail);
   });
 });
