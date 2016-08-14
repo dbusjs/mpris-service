@@ -1,55 +1,25 @@
 'use strict';
-
 const dbus = require('dbus-native');
 
 const Player = require('../index');
 
 const helpers = require('./helpers/helpers');
 
-const objectpath = '/org/mpris/MediaPlayer2/one';
-const namespace = 'org.mpris.MediaPlayer2.Player';
+const objectpath = '/org/mpris/MediaPlayer2/two';
+const namespace = 'org.mpris.MediaPlayer2';
 
 const events = {
-  next: {
-    method: 'Next',
+  quit: {
+    method: 'Quit',
     args: []
   },
-  previous: {
-    method: 'Previous',
+  raise: {
+    method: 'Raise',
     args: []
-  },
-  play: {
-    method: 'Play',
-    args: []
-  },
-  pause: {
-    method: 'Pause',
-    args: []
-  },
-  playpause: {
-    method: 'PlayPause',
-    args: []
-  },
-  stop: {
-    method: 'Stop',
-    agrs: []
-  },
-  open: {
-    method: 'OpenUri',
-    args: ['/home/foo']
-  },
-  seek: {
-    method: 'Seek',
-    args: [3.14 * 10e6]
-  },
-  // TODO: figure out how to pass first arg
-  // position: {
-  //   method: 'SetPosition',
-  //   args: ['playlist/0', 3.14 * 10e6]
-  // }
+  }
 };
 
-describe('player interface', () => {
+describe('root interface', () => {
   let bus, name, player, service, object, servicename;
 
   beforeAll((done) => {
@@ -81,7 +51,6 @@ describe('player interface', () => {
 
       promise = promise.then(() => {
         const wait = helpers.waitForEvent(player, name);
-
         object[call.method].apply(object, call.args);
 
         return wait;
