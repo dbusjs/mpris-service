@@ -13,3 +13,4 @@ addons:
       - gcc-5
       - g++-5
       - libdbus-1-dev
+      - libglib2.0-dev
