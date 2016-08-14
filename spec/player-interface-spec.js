@@ -73,7 +73,7 @@ describe('player interface', () => {
     Object.keys(events).forEach((name) => {
       const call = events[name];
 
-      promise.then(() => {
+      promise = promise.then(() => {
         const wait = helpers.waitForEvent(player, name);
 
         object[call.method].apply(object, call.args);
