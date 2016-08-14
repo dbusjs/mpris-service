@@ -15,4 +15,6 @@ addons:
       - libdbus-1-dev
       - libglib2.0-dev
       - libexpat1-dev
-before_install: ls -R /usr/lib
+before_install:
+  - dpkg-query -L libexpat1-dev
+  - dpkg-query -L libexpat1
