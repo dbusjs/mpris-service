@@ -14,4 +14,5 @@ addons:
       - g++-5
       - libdbus-1-dev
       - libglib2.0-dev
-      - lib64expat1-dev
+      - libexpat1
+      - libexpat1-dev
