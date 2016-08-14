@@ -2,13 +2,7 @@ const dbus = require('dbus-native');
 
 const Player = require('../index');
 
-const playername = () => {
-  return 'test' + (Math.random() * 1000 | 0).toString();
-};
-
-const servicename = (player) => {
-  return 'org.mpris.MediaPlayer2.' + player;
-};
+const helpers = require('./helpers/helpers');
 
 const objectpath = '/org/mpris/MediaPlayer2';
 const namespace = 'org.mpris.MediaPlayer2.Player';
@@ -53,26 +47,20 @@ const eventmap = {
   // }
 };
 
-const waitForEvent = (player, event) => {
-  return new Promise((resolve) => {
-    player.on(event, resolve);
-  });
-};
-
 describe('player interface', () => {
   it('should emit events that correspond to method calls', (done) => {
-    const name = playername();
+    const name = helpers.playername();
     const player = new Player({ name });
 
     const events =  Object.keys(eventmap);
 
     const promises = events.map((event) => {
-      return waitForEvent(player, event);
+      return helpers.waitForEvent(player, event);
     });
 
     Promise.all(promises).then(done).catch(fail);
 
-    const service = dbus.sessionBus().getService(servicename(name));
+    const service = dbus.sessionBus().getService(helpers.servicename(name));
     service.getInterface(objectpath, namespace, (err, player) => {
       if (err) {
         fail(err);
