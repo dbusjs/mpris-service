@@ -41,7 +41,6 @@ describe('root interface', () => {
 
   afterAll(() => {
     bus.connection.end();
-    player.close();
   });
 
   it('should emit events that correspond to method calls', (done) => {
