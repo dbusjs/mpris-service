@@ -12,3 +12,4 @@ addons:
     packages:
       - gcc-5
       - g++-5
+      - libdbus-1-dev
