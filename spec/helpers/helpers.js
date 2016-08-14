@@ -1,6 +1,14 @@
 'use strict';
 
+const Player = require('../../index');
+
+let player;
+
 module.exports = {
+  getPlayer: (name) => {
+    player = player || new Player({ name })
+    return player;
+  },
   playername: () => {
     return 'test' + (Math.random() * 1000 | 0).toString();
   },

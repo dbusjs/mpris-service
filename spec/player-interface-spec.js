@@ -2,11 +2,9 @@
 
 const dbus = require('dbus-native');
 
-const Player = require('../index');
-
 const helpers = require('./helpers/helpers');
 
-const objectpath = '/org/mpris/MediaPlayer2/one';
+const objectpath = '/org/mpris/MediaPlayer2';
 const namespace = 'org.mpris.MediaPlayer2.Player';
 
 const events = {
@@ -55,7 +53,8 @@ describe('player interface', () => {
   beforeAll((done) => {
     bus = dbus.sessionBus();
     name = helpers.playername();
-    player = new Player({ name });
+    player = helpers.getPlayer(name);
+    name = player.name;
     servicename = helpers.servicename(name);
     service = bus.getService(servicename);
 
@@ -67,10 +66,6 @@ describe('player interface', () => {
       object = obj;
       done();
     });
-  });
-
-  afterAll(() => {
-    bus.connection.end();
   });
 
   it('should emit events that correspond to method calls', (done) => {
