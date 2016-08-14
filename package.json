@@ -24,5 +24,9 @@
   "homepage": "https://github.com/emersion/mpris-service",
   "dependencies": {
     "dbus": "^0.2.11"
+  },
+  "devDependencies": {
+    "dbus-native": "^0.2.0",
+    "jasmine": "^2.4.1"
   }
 }
