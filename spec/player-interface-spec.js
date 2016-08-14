@@ -82,6 +82,6 @@ describe('player interface', () => {
       });
     });
 
-    promise.then(done, fail);
+    promise.then(done).catch(fail);
   });
 });

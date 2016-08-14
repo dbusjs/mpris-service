@@ -56,6 +56,6 @@ describe('playlists interface', () => {
       });
     });
 
-    promise.then(done, fail);
+    promise.then(done).catch(fail);
   });
 });
