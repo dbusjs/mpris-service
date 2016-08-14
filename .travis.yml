@@ -3,15 +3,9 @@ node_js:
   - "6"
   - "5"
   - "4"
-env:
-  - CC=gcc-5 CXX=g++-5
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - gcc-5
-      - g++-5
       - libdbus-1-dev
       - libglib2.0-dev
       - libexpat1-dev
