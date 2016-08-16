@@ -39,21 +39,18 @@ describe('root interface', () => {
   });
 
   it('should emit events that correspond to method calls', (done) => {
-    let promise = Promise.resolve();
 
-    // TODO: use .reduce
-    Object.keys(events).forEach((name) => {
+    Object.keys(events).reduce((promise, name) => {
       const call = events[name];
 
-      promise = promise.then(() => {
+      return promise.then(() => {
         const wait = helpers.waitForEvent(player, name);
         object[call.method].apply(object, call.args(player));
 
         return wait;
       });
-    });
+    }, Promise.resolve()).then(done).catch(fail);
 
-    promise.then(done).catch(fail);
   });
 
   it('should emit PropertiesChanged event on property changes', (done) => {
