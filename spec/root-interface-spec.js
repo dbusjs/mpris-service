@@ -41,6 +41,7 @@ describe('root interface', () => {
   it('should emit events that correspond to method calls', (done) => {
     let promise = Promise.resolve();
 
+    // TODO: use .reduce
     Object.keys(events).forEach((name) => {
       const call = events[name];
 
@@ -53,5 +54,18 @@ describe('root interface', () => {
     });
 
     promise.then(done).catch(fail);
+  });
+
+  it('should emit PropertiesChanged event on property changes', (done) => {
+
+    service.getInterface(objectpath, 'org.freedesktop.DBus.Properties', (err, obj) => {
+
+      obj.on('PropertiesChanged', function(ns, props) {
+        done();
+      });
+
+      player.PlaybackStatus = 'Playing';
+    });
+
   });
 });
