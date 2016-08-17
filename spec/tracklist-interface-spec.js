@@ -6,20 +6,23 @@ const helpers = require('./helpers/helpers');
 const objectpath = '/org/mpris/MediaPlayer2';
 const namespace = 'org.mpris.MediaPlayer2.TrackList';
 
-const events = {
-  addTrack: {
+const events = [
+  {
+    name: 'addTrack',
     method: 'AddTrack',
     args: (player) => { return ['/home/foo', player.objectPath('playlist/0'), false]; }
   },
-  removeTrack: {
+  {
+    name: 'removeTrack',
     method: 'RemoveTrack',
     args: (player) => { return [player.objectPath('playlist/0')]; }
   },
-  goTo: {
+  {
+    name: 'goTo',
     method: 'GoTo',
     args: (player) => { return [player.objectPath('playlist/0')]; }
   }
-};
+];
 
 describe('playlists interface', () => {
   let bus, name, player, service, object, servicename;
@@ -43,19 +46,16 @@ describe('playlists interface', () => {
   });
 
   it('should emit events that correspond to method calls', (done) => {
-    let promise = Promise.resolve();
 
-    Object.keys(events).forEach((name) => {
-      const call = events[name];
+    events.reduce((promise, event) => {
 
-      promise = promise.then(() => {
-        const wait = helpers.waitForEvent(player, name);
-        object[call.method].apply(object, call.args(player));
+      return promise.then(() => {
+        const wait = helpers.waitForEvent(player, event.name);
+        object[event.method].apply(object, event.args(player));
 
         return wait;
       });
-    });
+    }, Promise.resolve()).then(done).catch(fail);
 
-    promise.then(done).catch(fail);
   });
 });
