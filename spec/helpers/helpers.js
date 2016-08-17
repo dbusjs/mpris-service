@@ -19,9 +19,24 @@ module.exports = {
     return 'org.mpris.MediaPlayer2.' + player;
   },
 
-  waitForEvent: (player, event) => {
+  waitForEvent: (emitter, event) => {
     return new Promise((resolve) => {
-      player.once(event, resolve);
+      if (emitter.once) {
+        emitter.once(event, resolve);
+      } else {
+        emitter.on(event, resolve);
+      }
+    });
+  },
+
+  getInterfaceAsync: (service, objectpath, interfaceString) => {
+    return new Promise((resolve, reject) => {
+      service.getInterface(objectpath, interfaceString, (err, obj) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(obj);
+      });
     });
   }
 };

@@ -55,6 +55,14 @@ const events = [
   }
 ];
 
+const signals = [
+  {
+    method: 'seeked',
+    signal: 'Seeked',
+    args: [3.14 * 10e6]
+  }
+];
+
 describe('player interface', () => {
   let bus, name, player, service, object, servicename;
 
@@ -76,7 +84,7 @@ describe('player interface', () => {
     });
   });
 
-  it('should emit events that correspond to method calls', (done) => {
+  it('should emit events on player object that correspond to method calls', (done) => {
 
     events.reduce((promise, event) => {
 
@@ -86,6 +94,27 @@ describe('player interface', () => {
 
         return wait;
       });
+    }, Promise.resolve()).then(done).catch(fail);
+
+  });
+
+  it('should emit signals on the bus that correspond to method calls', (done) => {
+
+    signals.reduce((promise, signal) => {
+
+      return promise.then(() => {
+
+        return helpers.getInterfaceAsync(service, objectpath, 'org.mpris.MediaPlayer2.Player').then(obj => {
+          const wait = helpers.waitForEvent(obj, signal.signal).then(function() {
+            const args = Array.prototype.slice.call(arguments);
+            expect(args).toEqual(signal.args);
+          });
+          player[signal.method].apply(player, signal.args);
+
+          return wait;
+        });
+      });
+
     }, Promise.resolve()).then(done).catch(fail);
 
   });
