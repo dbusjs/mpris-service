@@ -59,7 +59,7 @@ const signals = [
   {
     method: 'seeked',
     signal: 'Seeked',
-    args: [3.14 * 10e6]
+    args: () => { return [3.14 * 10e6]; }
   }
 ];
 
@@ -100,16 +100,16 @@ describe('player interface', () => {
 
   it('should emit signals on the bus that correspond to method calls', (done) => {
 
-    return helpers.getInterfaceAsync(service, objectpath, 'org.mpris.MediaPlayer2.Player').then(obj => {
+    helpers.getInterfaceAsync(service, objectpath, namespace).then(obj => {
 
       return signals.reduce((promise, signal) => {
         return promise.then(() => {
 
             const wait = helpers.waitForEvent(obj, signal.signal).then(function() {
               const args = Array.prototype.slice.call(arguments);
-              expect(args).toEqual(signal.args);
+              expect(args).toEqual(signal.args(player));
             });
-            player[signal.method].apply(player, signal.args);
+            player[signal.method].apply(player, signal.args(player));
 
             return wait;
         });

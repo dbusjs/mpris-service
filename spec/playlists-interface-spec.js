@@ -14,6 +14,14 @@ const events = [
   }
 ];
 
+const signals = [
+  {
+    method: 'setActivePlaylist',
+    signal: 'PlaylistChanged',
+    args: (player) => { return ['playlist/0'] }
+  }
+];
+
 describe('playlists interface', () => {
   let bus, name, player, service, object, servicename;
 
@@ -33,6 +41,13 @@ describe('playlists interface', () => {
       object = obj;
       done();
     });
+
+    player.playlists = [
+      {
+        Id: 'playlist/0',
+        Valid: true
+      }
+    ];
   });
 
   it('should emit events that correspond to method calls', (done) => {
@@ -46,6 +61,28 @@ describe('playlists interface', () => {
         return wait;
       });
     }, Promise.resolve()).then(done).catch(fail);
+
+  });
+
+  it('should emit signals on the bus that correspond to method calls', (done) => {
+
+    helpers.getInterfaceAsync(service, objectpath, namespace).then(obj => {
+
+      return signals.reduce((promise, signal) => {
+        return promise.then(() => {
+
+            const wait = helpers.waitForEvent(obj, signal.signal).then(function() {
+              // args have vastly different formats, need to somehow make them comparable
+              // const args = Array.prototype.slice.call(arguments);
+              // expect(args).toEqual(signal.args(player));
+            });
+            player[signal.method].apply(player, signal.args(player));
+
+            return wait;
+        });
+      }, Promise.resolve());
+
+    }).then(done).catch(fail);
 
   });
 });

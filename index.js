@@ -146,14 +146,14 @@ Player.prototype.addTrack = function (track) {
 	if (this.tracks.length > 2) {
 		afterTrack = this.tracks[this.tracks.length - 2]['mpris:trackid'];
 	}
-	that.interfaces.playlists.emitSignal('TrackAdded', afterTrack);
+	this.interfaces.trackList.emitSignal('TrackAdded', [track], afterTrack);
 };
 
 Player.prototype.removeTrack = function (trackId) {
 	var i = this.getTrackIndex(trackId);
 	this.tracks.splice(i, 1);
 
-	that.interfaces.playlists.emitSignal('TrackRemoved', trackId);
+	this.interfaces.trackList.emitSignal('TrackRemoved', trackId);
 };
 
 Player.prototype.getPlaylistIndex = function (playlistId) {
@@ -185,6 +185,13 @@ Player.prototype.setActivePlaylist = function (playlistId) {
 		Valid: (i >= 0) ? true : false,
 		Playlist: this.playlists[i]
 	};
+
+	this.interfaces.playlists.emitSignal('PlaylistChanged', {
+		Id: this.objectPath(playlistId),
+		// TODO: figure out what to do with naming and icon
+		Name: 'playlist' + i,
+		Icon: ''
+	});
 };
 
 module.exports = Player;
