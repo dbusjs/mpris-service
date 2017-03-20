@@ -2,8 +2,6 @@ var DBus = require('dbus');
 var events = require('events');
 var util = require('util');
 
-var dbus = new DBus();
-
 function Type(signature, name) {
 	return { type: signature, name: name };
 }
@@ -32,6 +30,8 @@ function Player(opts) {
 util.inherits(Player, events.EventEmitter);
 
 Player.prototype.init = function () {
+	var dbus = new DBus();
+
 	// Create a new service, object and interface
 	this.serviceName = 'org.mpris.MediaPlayer2.'+this.name;
 	this.service = dbus.registerService('session', this.serviceName);
@@ -101,14 +101,16 @@ Player.prototype._createRootInterface = function () {
 	var that = this;
 	var ifaceName = 'org.mpris.MediaPlayer2',
 		iface = this.obj.createInterface(ifaceName);
-	
+
 	// Methods
 
-	iface.addMethod('Raise', {}, function () {
+	iface.addMethod('Raise', {}, function (callback) {
 		that.emit('raise');
+		callback();
 	});
-	iface.addMethod('Quit', {}, function () {
+	iface.addMethod('Quit', {}, function (callback) {
 		that.emit('quit');
+		callback();
 	});
 
 	// Properties
@@ -196,22 +198,26 @@ Player.prototype._createPlayerInterface = function () {
 	// Methods
 	var eventMethods = ['Next', 'Previous', 'Pause', 'PlayPause', 'Stop', 'Play'];
 	var addEventMethod = function (method) {
-		iface.addMethod(method, {}, function () {
+		iface.addMethod(method, {}, function (callback) {
 			that.emit(method.toLowerCase());
+			callback();
 		});
 	};
 	for (var i = 0; i < eventMethods.length; i++) {
 		addEventMethod(eventMethods[i]);
 	}
 
-	iface.addMethod('Seek', { in: [ Type('x', 'Offset') ] }, function (delta) {
+	iface.addMethod('Seek', { in: [ Type('x', 'Offset') ] }, function (delta, callback) {
 		that.emit('seek', { delta: delta, position: that.position + delta });
+		callback();
 	});
-	iface.addMethod('SetPosition', { in: [ Type('o', 'TrackId'), Type('x', 'Position') ] }, function (trackId, pos) {
+	iface.addMethod('SetPosition', { in: [ Type('o', 'TrackId'), Type('x', 'Position') ] }, function (trackId, pos, callback) {
 		that.emit('position', { trackId: trackId, position: pos });
+		callback();
 	});
-	iface.addMethod('OpenUri', { in: [ Type('s', 'Uri') ] }, function (uri) {
+	iface.addMethod('OpenUri', { in: [ Type('s', 'Uri') ] }, function (uri, callback) {
 		that.emit('open', { uri: uri });
+		callback();
 	});
 
 	// Signals
@@ -360,28 +366,31 @@ Player.prototype._createTrackListInterface = function () {
 	iface.addMethod('GetTracksMetadata', {
 		in: [ Type('ao', 'TrackIds') ],
 		out: Type('aa{sv}', 'Metadata')
-	}, function (trackIds) {
-		return that.tracks.filter(function (track) {
+	}, function (trackIds, callback) {
+		callback(that.tracks.filter(function (track) {
 			return (trackIds.indexOf(track['mpris:trackid']) >= 0);
-		});
+		}));
 	});
 
 	iface.addMethod('AddTrack', {
 		in: [ Type('s', 'Uri'), Type('o', 'AfterTrack'), Type('b', 'SetAsCurrent') ]
-	}, function (uri, afterTrack, setAsCurrent) {
+	}, function (uri, afterTrack, setAsCurrent, callback) {
 		that.emit('addTrack', {
 			uri: uri,
 			afterTrack: afterTrack,
 			setAsCurrent: setAsCurrent
 		});
+		callback();
 	});
 
-	iface.addMethod('RemoveTrack', { in: [ Type('o', 'TrackId') ] }, function (trackId) {
+	iface.addMethod('RemoveTrack', { in: [ Type('o', 'TrackId') ] }, function (trackId, callback) {
 		that.emit('removeTrack', trackId);
+		callback();
 	});
 
-	iface.addMethod('GoTo', { in: [ Type('o', 'TrackId') ] }, function (trackId) {
+	iface.addMethod('GoTo', { in: [ Type('o', 'TrackId') ] }, function (trackId, callback) {
 		that.emit('goTo', trackId);
+		callback();
 	});
 
 	// Signals
@@ -467,8 +476,9 @@ Player.prototype._createPlaylistsInterface = function () {
 
 	// Methods
 
-	iface.addMethod('ActivatePlaylist', { in: [ Type('o', 'PlaylistId') ] }, function (playlistId) {
+	iface.addMethod('ActivatePlaylist', { in: [ Type('o', 'PlaylistId') ] }, function (playlistId, callback) {
 		that.emit('activatePlaylist', playlistId);
+		callback();
 	});
 
 	iface.addMethod('GetPlaylists', {
