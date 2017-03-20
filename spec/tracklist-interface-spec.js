@@ -41,7 +41,7 @@ const signals = [
   }
 ];
 
-describe('playlists interface', () => {
+describe('tracklist interface', () => {
   let bus, name, player, service, object, servicename;
 
   beforeAll((done) => {
