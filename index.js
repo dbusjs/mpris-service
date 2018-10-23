@@ -30,11 +30,9 @@ function Player(opts) {
 util.inherits(Player, events.EventEmitter);
 
 Player.prototype.init = function () {
-	var dbus = new DBus();
-
 	// Create a new service, object and interface
 	this.serviceName = 'org.mpris.MediaPlayer2.'+this.name;
-	this.service = dbus.registerService('session', this.serviceName);
+	this.service = DBus.registerService('session',this.serviceName);
 	this.obj = this.service.createObject('/org/mpris/MediaPlayer2');
 
 	// TODO: must be defined in dbus module
@@ -121,13 +119,13 @@ Player.prototype._createRootInterface = function () {
 	iface.addProperty('CanQuit', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canQuit != 'undefined') ? that.canQuit : true);
+			callback(null, (typeof that.canQuit != 'undefined') ? that.canQuit : true);
 		}
 	});
 	iface.addProperty('Fullscreen', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(that.fulscreen || false);
+			callback(null, that.fulscreen || false);
 		},
 		setter: function (value, next) {
 			if (!that.canSetFullscreen) return next();
@@ -140,25 +138,25 @@ Player.prototype._createRootInterface = function () {
 	iface.addProperty('CanRaise', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canRaise != 'undefined') ? that.canRaise : true);
+			callback(null, (typeof that.canRaise != 'undefined') ? that.canRaise : true);
 		}
 	});
 	iface.addProperty('CanSetFullscreen', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canSetFullscreen != 'undefined') ? that.canSetFullscreen : false);
+			callback(null, (typeof that.canSetFullscreen != 'undefined') ? that.canSetFullscreen : false);
 		}
 	});
 	iface.addProperty('HasTrackList', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(false);
+			callback(null, false);
 		}
 	});
 	iface.addProperty('Identity', {
 		type: Type('s'),
 		getter: function(callback) {
-			callback(that.identity || '');
+			callback(null, that.identity || '');
 		}
 	});
 	if (this.desktopEntry) {
@@ -166,20 +164,20 @@ Player.prototype._createRootInterface = function () {
 		iface.addProperty('DesktopEntry', {
 			type: Type('s'),
 			getter: function(callback) {
-				callback(that.desktopEntry || '');
+				callback(null, that.desktopEntry || '');
 			}
 		});
 	}
 	iface.addProperty('SupportedUriSchemes', {
 		type: Type('as'),
 		getter: function(callback) {
-			callback(that.supportedUriSchemes || []);
+			callback(null, that.supportedUriSchemes || []);
 		}
 	});
 	iface.addProperty('SupportedMimeTypes', {
 		type: Type('as'),
 		getter: function(callback) {
-			callback(that.supportedMimeTypes || []);
+			callback(null, that.supportedMimeTypes || []);
 		}
 	});
 
@@ -234,13 +232,13 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('PlaybackStatus', {
 		type: Type('s'),
 		getter: function(callback) {
-			callback(that.playbackStatus || 'Stopped');
+			callback(null, that.playbackStatus || 'Stopped');
 		}
 	});
 	iface.addProperty('LoopStatus', {
 		type: Type('s'),
 		getter: function(callback) {
-			callback(that.loopStatus || 'None');
+			callback(null, that.loopStatus || 'None');
 		},
 		setter: function (value, next) {
 			that.loopStatus = value;
@@ -251,7 +249,7 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('Rate', {
 		type: Type('d'),
 		getter: function(callback) {
-			callback(that.rate || 1);
+			callback(null, that.rate || 1);
 		},
 		setter: function (value, next) {
 			that.rate = value;
@@ -262,7 +260,7 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('Shuffle', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback(that.shuffle || false);
+			callback(null, that.shuffle || false);
 		},
 		setter: function (value, next) {
 			that.shuffle = value;
@@ -273,13 +271,13 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('Metadata', {
 		type: Type('a{sv}'),
 		getter: function(callback) {
-			callback(that.metadata || {});
+			callback(null, that.metadata || {});
 		}
 	});
 	iface.addProperty('Volume', {
 		type: Type('d'),
 		getter: function(callback) {
-			callback(that.volume || 1);
+			callback(null, that.volume || 1);
 		},
 		setter: function (value, next) {
 			that.volume = value;
@@ -290,55 +288,55 @@ Player.prototype._createPlayerInterface = function () {
 	iface.addProperty('Position', {
 		type: Type('x'),
 		getter: function(callback) {
-			callback(that.position || 0);
+			callback(null, that.position || 0);
 		}
 	});
 	iface.addProperty('MinimumRate', {
 		type: Type('d'),
 		getter: function(callback) {
-			callback(that.minimumRate || 1);
+			callback(null, that.minimumRate || 1);
 		}
 	});
 	iface.addProperty('MaximumRate', {
 		type: Type('d'),
 		getter: function(callback) {
-			callback(that.maximumRate || 1);
+			callback(null, that.maximumRate || 1);
 		}
 	});
 	iface.addProperty('CanGoNext', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canGoNext != 'undefined') ? that.canGoNext : true);
+			callback(null, (typeof that.canGoNext != 'undefined') ? that.canGoNext : true);
 		}
 	});
 	iface.addProperty('CanGoPrevious', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canGoPrevious != 'undefined') ? that.canGoPrevious : true);
+			callback(null, (typeof that.canGoPrevious != 'undefined') ? that.canGoPrevious : true);
 		}
 	});
 	iface.addProperty('CanPlay', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canPlay != 'undefined') ? that.canPlay : true);
+			callback(null, (typeof that.canPlay != 'undefined') ? that.canPlay : true);
 		}
 	});
 	iface.addProperty('CanPause', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canPause != 'undefined') ? that.canPause : true);
+			callback(null, (typeof that.canPause != 'undefined') ? that.canPause : true);
 		}
 	});
 	iface.addProperty('CanSeek', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canSeek != 'undefined') ? that.canSeek : true);
+			callback(null, (typeof that.canSeek != 'undefined') ? that.canSeek : true);
 		}
 	});
 	iface.addProperty('CanControl', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canControl != 'undefined') ? that.canControl : true);
+			callback(null, (typeof that.canControl != 'undefined') ? that.canControl : true);
 		}
 	});
 
@@ -367,7 +365,7 @@ Player.prototype._createTrackListInterface = function () {
 		in: [ Type('ao', 'TrackIds') ],
 		out: Type('aa{sv}', 'Metadata')
 	}, function (trackIds, callback) {
-		callback(that.tracks.filter(function (track) {
+		callback(null, that.tracks.filter(function (track) {
 			return (trackIds.indexOf(track['mpris:trackid']) >= 0);
 		}));
 	});
@@ -416,14 +414,14 @@ Player.prototype._createTrackListInterface = function () {
 	iface.addProperty('Tracks', {
 		type: Type('ao'),
 		getter: function(callback) {
-			callback(that.tracks);
+			callback(null, that.tracks);
 		}
 	});
 
 	iface.addProperty('CanEditTracks', {
 		type: Type('b'),
 		getter: function(callback) {
-			callback((typeof that.canEditTracks != 'undefined') ? that.canEditTracks : false);
+			callback(null, (typeof that.canEditTracks != 'undefined') ? that.canEditTracks : false);
 		}
 	});
 
@@ -503,7 +501,7 @@ Player.prototype._createPlaylistsInterface = function () {
 			return ret;
 		});
 
-		callback(playlists);
+		callback(null, playlists);
 	});
 
 	// Signals
@@ -519,21 +517,21 @@ Player.prototype._createPlaylistsInterface = function () {
 	iface.addProperty('PlaylistCount', {
 		type: Type('u'),
 		getter: function(callback) {
-			callback(that.playlistCount || 0);
+			callback(null, that.playlistCount || 0);
 		}
 	});
 
 	iface.addProperty('Orderings', {
 		type: Type('as'),
 		getter: function(callback) {
-			callback(['Alphabetical', 'UserDefined']);
+			callback(null, ['Alphabetical', 'UserDefined']);
 		}
 	});
 
 	iface.addProperty('ActivePlaylist', {
 		type: Type('(b(oss))'),
 		getter: function(callback) {
-			callback(that.activePlaylist || { Valid: false });
+			callback(null, that.activePlaylist || { Valid: false });
 		}
 	});
 
