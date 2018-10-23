@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/emersion/mpris-service",
   "dependencies": {
-    "dbus": "^0.2.11"
+    "dbus": "^1.0.3"
   }
 }
