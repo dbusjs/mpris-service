@@ -2,9 +2,10 @@
   "name": "mpris-service",
   "version": "1.1.4",
   "description": "Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,17 @@
   },
   "homepage": "https://github.com/emersion/mpris-service",
   "dependencies": {
-    "dbus": "^1.0.3"
+    "dbus-next": "acrisci/node-dbus-next",
+    "long": "^4.0.0",
+    "source-map-support": "^0.5.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.5",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-cli": "^2.0.1",
+    "gulp-sourcemaps": "^2.6.4"
   }
 }

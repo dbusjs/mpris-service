@@ -5,7 +5,7 @@ var player = Player({
 	identity: 'Node.js media player',
 	supportedUriSchemes: ['file'],
 	supportedMimeTypes: ['audio/mpeg', 'application/ogg'],
-	supportedInterfaces: ['player', 'playlists']
+	supportedInterfaces: ['playlists']
 });
 
 player.on('quit', function () {

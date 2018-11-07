@@ -1,3 +1,8 @@
+/dist
+/package-lock.json
+/yarn.lock
+*.swp
+
 # Logs
 logs
 *.log
