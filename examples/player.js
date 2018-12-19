@@ -28,7 +28,7 @@ setTimeout(function () {
 		'mpris:artUrl': 'http://www.adele.tv/images/facebook/adele.jpg',
 		'xesam:title': 'Lolol',
 		'xesam:album': '21',
-		'xesam:artist': 'Adele'
+		'xesam:artist': ['Adele']
 	};
 
 	player.playbackStatus = 'Playing';
