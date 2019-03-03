@@ -32,6 +32,7 @@
     "@babel/core": "^7.1.6",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-transform-async-to-generator": "^7.3.4",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "gulp": "^4.0.0",
@@ -41,5 +42,8 @@
     "jest": "^23.6.0",
     "jsbi": "^2.0.5",
     "regenerator-runtime": "^0.12.1"
+  },
+  "engine": {
+    "node": ">=6.3.0"
   }
 }
