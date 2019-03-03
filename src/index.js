@@ -4,6 +4,7 @@ const events = require('events');
 const util = require('util');
 
 const dbus = require('dbus-next');
+dbus.setBigIntCompat(true);
 const PlayerInterface = require('./interfaces/player');
 const RootInterface = require('./interfaces/root');
 const PlaylistsInterface = require('./interfaces/playlists');
@@ -25,33 +26,36 @@ function Player(opts) {
   this.name = opts.name;
   this.supportedInterfaces = opts.supportedInterfaces || ['player'];
   this._tracks = [];
+  this.position = 0;
   this.init(opts);
 }
 util.inherits(Player, events.EventEmitter);
 
 Player.prototype.init = function(opts) {
   this.serviceName = `org.mpris.MediaPlayer2.${this.name}`;
-  let bus = dbus.sessionBus();
+  this._bus = dbus.sessionBus();
 
   this.interfaces = {};
 
-  this._addRootInterface(bus, opts);
+  this._addRootInterface(this._bus, opts);
 
   if (this.supportedInterfaces.indexOf('player') >= 0) {
-    this._addPlayerInterface(bus);
+    this._addPlayerInterface(this._bus);
   }
   if (this.supportedInterfaces.indexOf('trackList') >= 0) {
-    this._addTracklistInterface(bus);
+    this._addTracklistInterface(this._bus);
   }
   if (this.supportedInterfaces.indexOf('playlists') >= 0) {
-    this._addPlaylistsInterface(bus);
+    this._addPlaylistsInterface(this._bus);
   }
 };
 
 Player.prototype._addRootInterface = function(bus, opts) {
   this.interfaces.root = new RootInterface(this, opts);
   this._addEventedPropertiesList(this.interfaces.root,
-    ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes']);
+    ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes',
+    'CanQuit', 'CanRaise', 'CanSetFullscreen', 'HasTrackList',
+    'DesktopEntry']);
   bus.export(this.serviceName, MPRIS_PATH, this.interfaces.root);
 };
 

@@ -17,7 +17,7 @@ class MprisInterface extends Interface {
     this[`_${property}`] = valueDbus;
     let changedProperties = {};
     changedProperties[property] = valueDbus;
-    this.PropertiesChanged(changedProperties);
+    Interface.emitPropertiesChanged(this, changedProperties);
     // nothing is currently settable internally that needs conversion to plain
     this.player.emit(property[0].toLowerCase() + property.substr(1), valueDbus);
   }
@@ -41,7 +41,7 @@ class MprisInterface extends Interface {
     this[`_${property}`] = valueDbus;
     let changedProperties = {};
     changedProperties[property] = valueDbus;
-    this.PropertiesChanged(changedProperties);
+    Interface.emitPropertiesChanged(this, changedProperties);
   }
 }
 
