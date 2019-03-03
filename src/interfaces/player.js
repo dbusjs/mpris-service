@@ -167,6 +167,7 @@ class PlayerInterface extends MprisInterface {
   SetPosition(trackId, position) {
     let e = {
       trackId: trackId,
+      // XXX overflow
       position: JSBI.toNumber(position)
     };
     this.player.emit('position', e);

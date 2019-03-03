@@ -14,15 +14,12 @@ class MprisInterface extends Interface {
   }
 
   _setPropertyInternal(property, valueDbus) {
-    this[`_${property}`] = valueDbus;
-    let changedProperties = {};
-    changedProperties[property] = valueDbus;
-    Interface.emitPropertiesChanged(this, changedProperties);
     // nothing is currently settable internally that needs conversion to plain
     this.player.emit(property[0].toLowerCase() + property.substr(1), valueDbus);
   }
 
   setProperty(property, valuePlain) {
+    // convert the plain value to a dbus value (default to the plain value)
     let valueDbus = valuePlain;
 
     if (property === 'Metadata') {
@@ -38,10 +35,12 @@ class MprisInterface extends Interface {
         valuePlain.filter((t) => t['mpris:trackid']).map((t) => t['mpris:trackid']);
     }
 
-    this[`_${property}`] = valueDbus;
-    let changedProperties = {};
-    changedProperties[property] = valueDbus;
-    Interface.emitPropertiesChanged(this, changedProperties);
+    if (this[`_${property}`] !== valueDbus) {
+      this[`_${property}`] = valueDbus;
+      let changedProperties = {};
+      changedProperties[property] = valueDbus;
+      Interface.emitPropertiesChanged(this, changedProperties);
+    }
   }
 }
 

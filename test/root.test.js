@@ -1,6 +1,6 @@
 let dbus = require('dbus-next');
 let Variant = dbus.Variant;
-let Player = require('../src');
+let Player = require('../dist');
 
 const ROOT_IFACE = 'org.mpris.MediaPlayer2';
 const PLAYER_IFACE = 'org.mpris.MediaPlayer2.Player';
@@ -39,7 +39,7 @@ test('calling methods should raise a signal on the player', async () => {
   expect(cb).toHaveBeenCalledWith();
 });
 
-test('setting properties with dbus should set them on the player and raise a signal', async () => {
+test('setting properties on the player should show up on dbus and raise a signal', async () => {
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.roottest', '/org/mpris/MediaPlayer2');
   let root = obj.getInterface(ROOT_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
