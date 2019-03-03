@@ -49,7 +49,7 @@ class PlaylistsInterface extends MprisInterface {
       return [];
     }
 
-    return this.player.playlists.sort(function(a, b) {
+    let result = this.player.playlists.sort(function(a, b) {
         let ret = 1;
         switch (order) {
           case 'Alphabetical':
@@ -61,10 +61,16 @@ class PlaylistsInterface extends MprisInterface {
           case 'UserDefined':
             break;
         }
-        return (reverseOrder ? -ret : ret);
+        return ret;
       })
       .slice(index, maxCount + index)
       .map(types.playlistToDbus);
+
+    if (reverseOrder) {
+      result.reverse();
+    }
+
+    return result;
   }
 
   @signal({signature: '(oss)'})
