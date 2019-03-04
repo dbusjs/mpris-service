@@ -6,7 +6,8 @@
   "scripts": {
     "test": "gulp && dbus-run-session -- jest",
     "coverage": "gulp && dbus-run-session -- jest --coverage",
-    "build": "gulp"
+    "build": "gulp",
+    "doc": "jsdoc --verbose -c jsdoc.conf --readme README.md --package package.json src/index.js -d doc"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "gulp-sourcemaps": "^2.6.4",
     "jest": "^23.6.0",
     "jsbi": "^2.0.5",
+    "jsdoc": "^3.5.5",
     "regenerator-runtime": "^0.12.1"
   },
   "engine": {
