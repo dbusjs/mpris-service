@@ -2,9 +2,12 @@
   "name": "mpris-service",
   "version": "1.1.4",
   "description": "Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp && dbus-run-session -- jest",
+    "coverage": "gulp && dbus-run-session -- jest --coverage",
+    "build": "gulp",
+    "doc": "jsdoc --verbose -c jsdoc.conf --readme README.md --package package.json src/index.js -d doc"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,26 @@
   },
   "homepage": "https://github.com/emersion/mpris-service",
   "dependencies": {
-    "dbus": "^1.0.3"
+    "dbus-next": "0.2.1",
+    "source-map-support": "^0.5.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-transform-async-to-generator": "^7.3.4",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cli": "^2.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "jest": "^23.6.0",
+    "jsbi": "^2.0.5",
+    "jsdoc": "^3.5.5",
+    "regenerator-runtime": "^0.12.1"
+  },
+  "engine": {
+    "node": ">=6.3.0"
   }
 }
