@@ -93,6 +93,8 @@ util.inherits(Player, events.EventEmitter);
 
 Player.prototype.init = function(opts) {
   this.serviceName = `org.mpris.MediaPlayer2.${this.name}`;
+  dbus.validators.assertInterfaceNameValid(this.serviceName);
+
   this._bus = dbus.sessionBus();
 
   this.interfaces = {};
