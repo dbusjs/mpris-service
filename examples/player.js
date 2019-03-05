@@ -8,6 +8,11 @@ var player = Player({
 	supportedInterfaces: ['player']
 });
 
+player.getPosition = function() {
+  // return the position of your player
+  return 0;
+}
+
 // Events
 var events = ['raise', 'quit', 'next', 'previous', 'pause', 'playpause', 'stop', 'play', 'seek', 'position', 'open', 'volume', 'loopStatus', 'shuffle'];
 events.forEach(function (eventName) {

@@ -39,7 +39,7 @@ function lcfirst(str) {
  * * `playPause` - Pauses playback.  If playback is already paused, resumes playback. If playback is stopped, starts playback.
  * * `stop` - Stops playback.
  * * `play` - Starts or resumes playback.
- * * `seek` - Seeks forward in the current track by the specified number of microseconds. With event data `{ delta, position }`.
+ * * `seek` - Seeks forward in the current track by the specified number of microseconds. With event data `offset`.
  * * `position` - Sets the current track position in microseconds. With event data `{ trackId, position }`.
  * * `open` - Opens the Uri given as an argument. With event data `{ uri }`.
  * * `activatePlaylist` -  Starts playing the given playlist. With event data `playlistId`.
@@ -75,7 +75,7 @@ function lcfirst(str) {
  * @property {Double} minimumRate - The minimum value which the Rate property can take.
  * @property {Double} maximumRate - The maximum value which the Rate property can take.
  * @property {Array} playlists - The current playlists set by Player#setPlaylists. (Not a DBus property).
- * @property {Integer} activePlaylist - The currently-active playlist.
+ * @property {String} activePlaylist - The id of the currently-active playlist.
  */
 function Player(opts) {
   if (!(this instanceof Player)) {
@@ -86,7 +86,6 @@ function Player(opts) {
   this.name = opts.name;
   this.supportedInterfaces = opts.supportedInterfaces || ['player'];
   this._tracks = [];
-  this.position = 0;
   this.init(opts);
 }
 util.inherits(Player, events.EventEmitter);
@@ -203,16 +202,27 @@ Player.prototype._addEventedPropertiesList = function(iface, props) {
 };
 
 /**
- * Sets the position of the player to `position + delta` and emits the `Seeked`
- * DBus signal to listening clients.
+ * Gets the position of this player. This method is intended to be overridden
+ * by the user to return the position of the player in microseconds.
+ *
+ * @name Player#getPosition
+ * @function
+ * @returns {Integer} - The current position of the player in microseconds.
+ */
+Player.prototype.getPosition = function() {
+  return 0;
+}
+
+/**
+ * Emits the `Seeked` DBus signal to listening clients with the given position.
  *
  * @name Player#seeked
  * @function
- * @param {Integer} delta - The change in position in microseconds.
+ * @param {Integer} position - The position in microseconds.
  */
-Player.prototype.seeked = function(delta) {
-  this.position += delta || 0;
-  this.interfaces.player.Seeked(this.position);
+Player.prototype.seeked = function(position) {
+  position = position || 0;
+  this.interfaces.player.Seeked(position);
 };
 
 Player.prototype.getTrackIndex = function(trackId) {

@@ -188,18 +188,23 @@ test('position specific properties, methods, and signals should work', async () 
     return peer.Ping();
   };
 
-  // position starts at 0
+  // position defaults to always being 0
   let position = await props.Get(PLAYER_IFACE, 'Position');
   expect(position).toEqual(new Variant('x', JSBI.BigInt(0)));
 
+  // when the getter is set, it should return what the getter returns
+  player.getPosition = function() {
+    return 99;
+  }
+
+  position = await props.Get(PLAYER_IFACE, 'Position');
+  expect(position).toEqual(new Variant('x', JSBI.BigInt(99)));
+
   // Seek
-  let cb = jest.fn(e => {
-    player.seeked(e.delta);
-  });
+  let cb = jest.fn();
   player.once('seek', cb);
   await playerIface.Seek(99);
-  expect(cb).toHaveBeenCalledWith({ delta: 99, position: 99 });
-  expect(player.position).toEqual(99);
+  expect(cb).toHaveBeenCalledWith(99);
 
   // SetPosition
   cb = jest.fn();
@@ -209,8 +214,7 @@ test('position specific properties, methods, and signals should work', async () 
 
   cb = jest.fn();
   playerIface.once('Seeked', cb);
-  player.seeked(99);
+  player.seeked(200);
   await ping();
-  // this one updates position
-  expect(cb).toHaveBeenCalledWith(JSBI.BigInt(198));
+  expect(cb).toHaveBeenCalledWith(JSBI.BigInt(200));
 });

@@ -25,7 +25,6 @@ class PlayerInterface extends MprisInterface {
   _Rate = 1;
   _Shuffle = false;
   _Volume = 0;
-  _Position = 0;
   _LoopStatus = 'None';
   _PlaybackStatus = 'Stopped';
 
@@ -106,7 +105,7 @@ class PlayerInterface extends MprisInterface {
 
   @property({signature: 'x', access: ACCESS_READ})
   get Position() {
-    return this._Position;
+    return this.player.getPosition();
   }
 
   @property({signature: 's'})
@@ -156,11 +155,7 @@ class PlayerInterface extends MprisInterface {
   Seek(offset) {
     // XXX overflow
     offset = JSBI.toNumber(offset);
-    let e = {
-      delta: offset,
-      position: (this.player.position || 0) + offset
-    };
-    this.player.emit('seek', e);
+    this.player.emit('seek', offset);
   }
 
   @method({inSignature: 'ox'})
