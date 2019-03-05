@@ -60,6 +60,8 @@ player.metadata = {
 player.playbackStatus = 'Playing';
 ```
 
+See `examples/player.js`.
+
 Events:
 * `next`
 * `previous`
@@ -68,7 +70,6 @@ Events:
 * `stop`
 * `play`
 * `seek`
-* `position`
 * `open`
 * `loopStatus`
 * `rate`
@@ -92,7 +93,8 @@ Properties:
 * `canControl`
 
 Methods:
-* `seeked(offset)`
+* `seeked(position)`
+* `getPosition()` (should be overridden to return the current position)
 
 ## TrackList
 
