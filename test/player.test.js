@@ -92,9 +92,16 @@ test('getting and setting properties on the player and on the interface should w
       'xesam:title': new Variant('s', 'Rise')
     })
   }
+  expect(cb).toHaveBeenCalledTimes(1);
   expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
   let gotten = await props.Get(PLAYER_IFACE, 'Metadata');
   expect(gotten).toEqual(changed.Metadata);
+
+  // setting the metadata again to the same thing should only emit
+  // PropertiesChanged once
+  player.metadata = JSON.parse(JSON.stringify(player.metadata));
+  await ping();
+  expect(cb).toHaveBeenCalledTimes(1);
 
   // PlaybackStatus
   player.playbackStatus = 'Paused';
