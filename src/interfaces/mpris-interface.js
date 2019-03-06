@@ -1,6 +1,7 @@
 let dbus = require('dbus-next');
 let Variant = dbus.Variant;
 let types = require('./types');
+let deepEqual = require('deep-equal');
 
 let {
   Interface, property, method, signal, MethodError,
@@ -35,7 +36,7 @@ class MprisInterface extends Interface {
         valuePlain.filter((t) => t['mpris:trackid']).map((t) => t['mpris:trackid']);
     }
 
-    if (this[`_${property}`] !== valueDbus) {
+    if (!deepEqual(this[`_${property}`], valueDbus)) {
       this[`_${property}`] = valueDbus;
       let changedProperties = {};
       changedProperties[property] = valueDbus;
