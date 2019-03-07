@@ -5,7 +5,7 @@ let Variant = dbus.Variant;
 let types = require('./types');
 
 let {
-  property, method, signal, MethodError,
+  property, method, signal, DBusError,
   ACCESS_READ, ACCESS_WRITE, ACCESS_READWRITE
 } = dbus.interface;
 

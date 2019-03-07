@@ -2,9 +2,10 @@ const dbus = require('dbus-next');
 const MprisInterface = require('./mpris-interface');
 const Variant = dbus.Variant;
 const JSBI = require('jsbi');
+const constants = require('../constants');
 
 let {
-  property, method, signal, MethodError,
+  property, method, signal, DBusError,
   ACCESS_READ, ACCESS_WRITE, ACCESS_READWRITE
 } = dbus.interface;
 
@@ -25,8 +26,8 @@ class PlayerInterface extends MprisInterface {
   _Rate = 1;
   _Shuffle = false;
   _Volume = 0;
-  _LoopStatus = 'None';
-  _PlaybackStatus = 'Stopped';
+  _LoopStatus = constants.LOOP_STATUS_NONE;
+  _PlaybackStatus = constants.PLAYBACK_STATUS_STOPPED;
 
   @property({signature: 'b', access: ACCESS_READ})
   get CanControl() {
@@ -104,14 +105,31 @@ class PlayerInterface extends MprisInterface {
 
   @property({signature: 's'})
   get LoopStatus() {
+    if (!constants.isLoopStatusValid(this._LoopStatus)) {
+      const err = 'github.mpris_service.InvalidLoopStatusError';
+      const message = `The player has set an invalid loop status: ${this._LoopStatus}`;
+      throw new DBusError(err, message);
+    }
+
     return this._LoopStatus;
   }
   set LoopStatus(value) {
+    if (!constants.isLoopStatusValid(value)) {
+      const err = 'github.mpris_service.InvalidLoopStatusError';
+      const message = `Tried to set loop status to an invalid value: ${value}`;
+      throw new DBusError(err, message);
+    }
     this._setPropertyInternal('LoopStatus', value);
   }
 
   @property({signature: 's', access: ACCESS_READ})
   get PlaybackStatus() {
+    if (!constants.isPlaybackStatusValid(this._PlaybackStatus)) {
+      const err = 'github.mpris_service.InvalidPlaybackStatusError';
+      const message = `The player has set an invalid playback status: ${this._PlaybackStatus}`;
+      throw new DBusError(err, message);
+    }
+
     return this._PlaybackStatus;
   }
 

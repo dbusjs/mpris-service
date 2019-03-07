@@ -10,6 +10,7 @@ const RootInterface = require('./interfaces/root');
 const PlaylistsInterface = require('./interfaces/playlists');
 const TracklistInterface = require('./interfaces/tracklist');
 const types = require('./interfaces/types');
+const constants = require('./constants');
 
 const MPRIS_PATH = '/org/mpris/MediaPlayer2';
 
@@ -390,5 +391,66 @@ Player.prototype.setPlaylists = function(playlists) {
 Player.prototype.setActivePlaylist = function(playlistId) {
   this.interfaces.playlists.setActivePlaylistId(playlistId);
 };
+
+/**
+ * Enumerated value for the `playbackStatus` property of the player to indicate
+ * a track is currently playing.
+ *
+ * @name Player#PLAYBACK_STATUS_PLAYING
+ * @static
+ * @constant
+ */
+Player.PLAYBACK_STATUS_PLAYING = constants.PLAYBACK_STATUS_PLAYING;
+
+/**
+ * Enumerated value for the `playbackStatus` property of the player to indicate
+ * a track is currently paused.
+ *
+ * @name Player#PLAYBACK_STATUS_PAUSED
+ * @static
+ * @constant
+ */
+Player.PLAYBACK_STATUS_PAUSED = constants.PLAYBACK_STATUS_PAUSED;
+
+/**
+ * Enumerated value for the `playbackStatus` property of the player to indicate
+ * there is no track currently playing.
+ *
+ * @name Player#PLAYBACK_STATUS_STOPPED
+ * @static
+ * @constant
+ */
+Player.PLAYBACK_STATUS_STOPPED = constants.PLAYBACK_STATUS_STOPPED;
+
+/**
+ * Enumerated value for the `loopStatus` property of the player to indicate
+ * playback will stop when there are no more tracks to play.
+ *
+ * @name Player#LOOP_STATUS_NONE
+ * @static
+ * @constant
+ */
+Player.LOOP_STATUS_NONE = constants.LOOP_STATUS_NONE;
+
+/**
+ * Enumerated value for the `loopStatus` property of the player to indicate the
+ * current track will start again from the beginning once it has finished
+ * playing.
+ *
+ * @name Player#LOOP_STATUS_TRACK
+ * @static
+ * @constant
+ */
+Player.LOOP_STATUS_TRACK = constants.LOOP_STATUS_TRACK;
+
+/**
+ * Enumerated value for the `loopStatus` property of the player to indicate the
+ * playback loops through a list of tracks.
+ *
+ * @name Player#LOOP_STATUS_PLAYLIST
+ * @static
+ * @constant
+ */
+Player.LOOP_STATUS_PLAYLIST = constants.LOOP_STATUS_PLAYLIST;
 
 module.exports = Player;
