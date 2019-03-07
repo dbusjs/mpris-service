@@ -36,7 +36,7 @@ setTimeout(function () {
 		'xesam:artist': ['Adele']
 	};
 
-	player.playbackStatus = 'Playing';
+	player.playbackStatus = Player.PLAYBACK_STATUS_PLAYING;
 
 	console.log('Now playing: Lolol - Adele - 21');
 }, 1000);

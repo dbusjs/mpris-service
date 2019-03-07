@@ -1,7 +1,9 @@
-let dbus = require('dbus-next');
-let Variant = dbus.Variant;
-let Player = require('../dist');
-let JSBI = require('jsbi');
+const dbus = require('dbus-next');
+const Variant = dbus.Variant;
+const Player = require('../dist');
+const JSBI = require('jsbi');
+
+const DBusError = dbus.interface.DBusError;
 
 const ROOT_IFACE = 'org.mpris.MediaPlayer2';
 const PLAYER_IFACE = 'org.mpris.MediaPlayer2.Player';
@@ -104,7 +106,7 @@ test('getting and setting properties on the player and on the interface should w
   expect(cb).toHaveBeenCalledTimes(1);
 
   // PlaybackStatus
-  player.playbackStatus = 'Paused';
+  player.playbackStatus = Player.PLAYBACK_STATUS_PAUSED;
   await ping();
   changed = {
     PlaybackStatus: new Variant('s', 'Paused')
@@ -114,7 +116,7 @@ test('getting and setting properties on the player and on the interface should w
   expect(gotten).toEqual(new Variant('s', 'Paused'));
 
   // LoopStatus
-  player.loopStatus = 'Track';
+  player.loopStatus = Player.LOOP_STATUS_TRACK;
   await ping();
   changed = {
     LoopStatus: new Variant('s', 'Track')
@@ -132,6 +134,12 @@ test('getting and setting properties on the player and on the interface should w
     LoopStatus: new Variant('s', 'Playlist')
   };
   expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
+  expect(player.loopStatus).toEqual('Playlist');
+
+  // trying to set an invalid loop status should give the client an error and
+  // leave player loop status unchanged
+  let invalidSet = props.Set(PLAYER_IFACE, 'LoopStatus', new Variant('s', 'AN_INVALID_STATUS'));
+  await expect(invalidSet).rejects.toBeInstanceOf(DBusError);
   expect(player.loopStatus).toEqual('Playlist');
 
   // The Double Properties
