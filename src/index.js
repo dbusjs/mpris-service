@@ -42,8 +42,89 @@ function lcfirst(str) {
  * * `seek` - Seeks forward in the current track by the specified number of microseconds. With event data `offset`.
  * * `position` - Sets the current track position in microseconds. With event data `{ trackId, position }`.
  * * `open` - Opens the Uri given as an argument. With event data `{ uri }`.
+ * * `volume` - Sets the volume of the player. With event data `volume` (between 0.0 and 1.0).
+ * * `shuffle` - Sets whether shuffle is enabled on the player. With event data `shuffleStatus` (boolean).
+ * * `rate` - Sets the playback rate of the player. A value of 1.0 is the normal rate. With event data `rate`.
+ * * `loopStatus` - Sets the loop status of the player to either 'None', 'Track', or 'Playlist'. With event data `loopStatus`.
  * * `activatePlaylist` -  Starts playing the given playlist. With event data `playlistId`.
  *
+ * ```
+ * player.on('play', () => {
+ *   realPlayer.play();
+ * });
+ *
+ * player.on('shuffle', (enableShuffle) => {
+ *   realPlayer.setShuffle(enableShuffle);
+ *   player.shuffle = enableShuffle;
+ * });
+ * ```
+ *
+ * Player Properties
+ * -----------------
+ *
+ * Player properties (documented below) should be kept up to date to reflect
+ * the state of your real player. These properties can be gotten by the client
+ * through the `org.freedesktop.DBus.Properties` interface which will return
+ * the value currently set on the player. Setting these properties on the
+ * player to a different value will emit the `PropertiesChanged` signal on the
+ * properties interface to notify clients that properties of the player have
+ * changed.
+ *
+ * ```
+ * realPlayer.on('shuffle:changed', (shuffleEnabled) => {
+ *   player.shuffle = shuffleEnabled;
+ * });
+ *
+ * realPlayer.on('play', () => {
+ *   player.playbackStatus = 'Playing';
+ * });
+ * ```
+ *
+ * Player Position
+ * ---------------
+ *
+ * Clients can get the position of your player by getting the `Position`
+ * property of the `org.mpris.MediaPlayer2.Player` interface. Since position
+ * updates continuously, {@link Player#getPosition} is implemented as a getter
+ * you can override on your Player. This getter will be called when a client
+ * requests the position and should return the position of your player for the
+ * client in microseconds.
+ *
+ * ```
+ * player.getPosition() {
+ *   return realPlayer.getPositionInMicroseconds();
+ * }
+ * ```
+ *
+ * When your real player seeks to a new location, such as when someone clicks
+ * on the time bar, you can notify clients of the new position by calling the
+ * {@link Player#seeked} method. This will raise the `Seeked` signal on the
+ * `org.mpris.MediaPlayer2.Player` interface with the given current time of the
+ * player in microseconds.
+ *
+ * ```
+ * realPlayer.on('seeked', (positionInMicroseconds) => {
+ *   player.seeked(positionInMicroseconds);
+ * });
+ * ```
+ *
+ * Clients can request to set position using the `Seek` and `SetPosition`
+ * methods of the `org.mpris.MediaPlayer2.Player` interface. These requests are
+ * implemented as events on the Player similar to the other requests.
+ *
+ * ```
+ * player.on('seek', (offset) => {
+ *   // note that offset may be negative
+ *   let currentPosition = realPlayer.getPositionInMicroseconds();
+ *   let newPosition = currentPosition + offset;
+ *   realPlayer.setPosition(newPosition);
+ * });
+ *
+ * player.on('position', (event) => {
+ *   // check that event.trackId is the current track before continuing.
+ *   realPlayer.setPosition(event.position);
+ * });
+ * ```
  *
  * @class Player
  * @param {Object} options - Options for the player
@@ -74,7 +155,7 @@ function lcfirst(str) {
  * @property {Double} rate - The current playback rate.
  * @property {Double} minimumRate - The minimum value which the Rate property can take.
  * @property {Double} maximumRate - The maximum value which the Rate property can take.
- * @property {Array} playlists - The current playlists set by Player#setPlaylists. (Not a DBus property).
+ * @property {Array} playlists - The current playlists set by {@link Player#setPlaylists}. (Not a DBus property).
  * @property {String} activePlaylist - The id of the currently-active playlist.
  */
 function Player(opts) {
@@ -261,8 +342,8 @@ Player.prototype.removeTrack = function(trackId) {
 };
 
 /**
- * Get the index of a playlist entry in the list of Player#playlists from the
- * given id.
+ * Get the index of a playlist entry in the `playlists` list property of the
+ * player from the given id.
  *
  * @name Player#getPlaylistIndex
  * @function
