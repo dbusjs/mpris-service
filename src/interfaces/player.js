@@ -63,20 +63,14 @@ class PlayerInterface extends MprisInterface {
     return this._Metadata;
   }
 
-  @property({signature: 'd'})
+  @property({signature: 'd', access: ACCESS_READ})
   get MaximumRate() {
     return this._MaximumRate;
   }
-  set MaximumRate(value) {
-    this._setPropertyInternal('MaximumRate', value);
-  }
 
-  @property({signature: 'd'})
+  @property({signature: 'd', access: ACCESS_READ})
   get MinimumRate() {
     return this._MinimumRate;
-  }
-  set MinimumRate(value) {
-    this._setPropertyInternal('MinimumRate', value);
   }
 
   @property({signature: 'd'})
