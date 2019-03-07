@@ -145,15 +145,19 @@ test('getting and setting properties on the player and on the interface should w
     expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
     gotten = await props.Get(PLAYER_IFACE, name);
     expect(gotten).toEqual(new Variant('d', player[playerName]));
-    let playerCb = jest.fn(val => {
-      player[playerName] = val;
-    });
-    player.once(playerName, playerCb);
-    await props.Set(PLAYER_IFACE, name, new Variant('d', 0.15));
-    expect(playerCb).toHaveBeenCalledWith(0.15);
-    expect(player[playerName]).toEqual(0.15);
-    changed[name] = new Variant('d', 0.15);
-    expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
+
+    if (name in ['Rate', 'Volume']) {
+      // these are settable by the client
+      let playerCb = jest.fn(val => {
+        player[playerName] = val;
+      });
+      player.once(playerName, playerCb);
+      await props.Set(PLAYER_IFACE, name, new Variant('d', 0.15));
+      expect(playerCb).toHaveBeenCalledWith(0.15);
+      expect(player[playerName]).toEqual(0.15);
+      changed[name] = new Variant('d', 0.15);
+      expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
+    }
   }
 
   // The Boolean properties
