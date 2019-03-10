@@ -1,5 +1,7 @@
 # mpris-service
 
+[![Build Status](https://travis-ci.org/emersion/mpris-service.svg?branch=master)](https://travis-ci.org/emersion/mpris-service)
+
 Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service.
 
 Docs: http://specifications.freedesktop.org/mpris-spec/latest/
