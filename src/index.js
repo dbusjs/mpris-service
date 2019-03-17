@@ -303,8 +303,11 @@ Player.prototype.getPosition = function() {
  * @param {Integer} position - The position in microseconds.
  */
 Player.prototype.seeked = function(position) {
-  position = position || 0;
-  this.interfaces.player.Seeked(position);
+  let seekTo = Math.floor(position || 0);
+  if (isNaN(seekTo)) {
+    throw new Error(`seeked expected a number (got ${position})`);
+  }
+  this.interfaces.player.Seeked(seekTo);
 };
 
 Player.prototype.getTrackIndex = function(trackId) {

@@ -100,7 +100,14 @@ class PlayerInterface extends MprisInterface {
 
   @property({signature: 'x', access: ACCESS_READ})
   get Position() {
-    return this.player.getPosition();
+    let playerPosition = this.player.getPosition();
+    let position = Math.floor(playerPosition || 0);
+    if (isNaN(position)) {
+      const err = 'github.mpris_service.InvalidPositionError';
+      const message = `The player has set an invalid position: ${playerPosition}`;
+      throw new DBusError(err, message);
+    }
+    return position;
   }
 
   @property({signature: 's'})
