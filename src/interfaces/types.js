@@ -1,4 +1,5 @@
 let Variant = require('dbus-next').Variant;
+let logging = require('../logging');
 
 function guessMetadataSignature(key, value) {
   if (key === 'mpris:trackid') {
@@ -15,7 +16,7 @@ function guessMetadataSignature(key, value) {
     return 'as';
   } else {
     // type not supported yet
-    console.error(`could not determine metadata type for ${key}: ${value}`);
+    logging.warn(`could not determine metadata type for ${key}: ${value}`);
     return null;
   }
 }
@@ -24,6 +25,10 @@ function metadataToPlain(metadataVariant) {
   let metadataPlain = {};
   for (let k of Object.keys(metadataVariant)) {
     let value = metadataVariant[k];
+    if (value === undefined || value === null) {
+      logging.warn(`ignoring a null metadata value for key ${k}`);
+      continue;
+    }
     if (value.constructor === Variant) {
       metadataPlain[k] = value.value;
     } else {
