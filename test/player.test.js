@@ -72,8 +72,7 @@ test('getting and setting properties on the player and on the interface should w
   let dbusObj = await bus.getProxyObject('org.freedesktop.DBus', '/org/freedesktop/DBus');
 
   let ping = async () => {
-    let peer = dbusObj.getInterface('org.freedesktop.DBus.Peer');
-    return peer.Ping();
+    return dbusObj.getInterface('org.freedesktop.DBus').ListNames();
   };
 
   let playerIface = obj.getInterface(PLAYER_IFACE);
@@ -203,8 +202,7 @@ test('position specific properties, methods, and signals should work', async () 
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
 
   let ping = async () => {
-    let peer = dbusObj.getInterface('org.freedesktop.DBus.Peer');
-    return peer.Ping();
+    return dbusObj.getInterface('org.freedesktop.DBus').ListNames();
   };
 
   // position defaults to always being 0

@@ -46,8 +46,7 @@ test('setting properties on the player should show up on dbus and raise a signal
   let dbusObj = await bus.getProxyObject('org.freedesktop.DBus', '/org/freedesktop/DBus');
 
   let ping = async () => {
-    let peer = dbusObj.getInterface('org.freedesktop.DBus.Peer');
-    return peer.Ping();
+    return dbusObj.getInterface('org.freedesktop.DBus').ListNames();
   };
 
   let cb = jest.fn();
