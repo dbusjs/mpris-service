@@ -70,8 +70,7 @@ test('setting a playlist on the player works', async () => {
   let playlistsIface = obj.getInterface(PLAYLISTS_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
   let ping = async () => {
-    let peer = dbusObj.getInterface('org.freedesktop.DBus.Peer');
-    return peer.Ping();
+    return dbusObj.getInterface('org.freedesktop.DBus').ListNames();
   };
 
   let propsCb = jest.fn();
