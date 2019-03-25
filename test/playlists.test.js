@@ -1,7 +1,9 @@
+jest.setTimeout(1e4);
 let dbus = require('dbus-next');
 let Variant = dbus.Variant;
 let Player = require('../dist');
 let JSBI = require('jsbi');
+let { ping } = require('./fixtures');
 
 const ROOT_IFACE = 'org.mpris.MediaPlayer2';
 const PLAYER_IFACE = 'org.mpris.MediaPlayer2.Player';
@@ -19,7 +21,15 @@ var player = Player({
   supportedInterfaces: ['player', 'playlists']
 });
 
+player.on('error', (err) => {
+  console.log(`got unexpected error:\n${err.stack}`);
+});
+
 let bus = dbus.sessionBus();
+
+beforeAll(async () => {
+  await ping(bus);
+});
 
 afterAll(() => {
   player._bus.connection.stream.end();
@@ -66,12 +76,8 @@ test('default state of the playlists interface', async () => {
 
 test('setting a playlist on the player works', async () => {
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.playliststest', '/org/mpris/MediaPlayer2');
-  let dbusObj = await bus.getProxyObject('org.freedesktop.DBus', '/org/freedesktop/DBus');
   let playlistsIface = obj.getInterface(PLAYLISTS_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
-  let ping = async () => {
-    return dbusObj.getInterface('org.freedesktop.DBus').ListNames();
-  };
 
   let propsCb = jest.fn();
   props.on('PropertiesChanged', propsCb);
@@ -102,7 +108,7 @@ test('setting a playlist on the player works', async () => {
     }
   ]);
 
-  await ping();
+  await ping(bus);
 
   expect(propsCb).toHaveBeenCalledWith(PLAYLISTS_IFACE, {
     PlaylistCount: new Variant('u', 4)
@@ -118,7 +124,7 @@ test('setting a playlist on the player works', async () => {
 
   player.setActivePlaylist(player.playlists[1].Id);
 
-  await ping();
+  await ping(bus);
 
   let expectedActivePlaylist = new Variant('(b(oss))',
     [

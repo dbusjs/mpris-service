@@ -49,6 +49,10 @@ function lcfirst(str) {
  * * `loopStatus` - Sets the loop status of the player to either 'None', 'Track', or 'Playlist'. With event data `loopStatus`.
  * * `activatePlaylist` -  Starts playing the given playlist. With event data `playlistId`.
  *
+ * The Player may also emit an `error` event with the underlying Node `Error`
+ * as the event data. After receiving this event, the Player may be
+ * disconnected.
+ *
  * ```
  * player.on('play', () => {
  *   realPlayer.play();
@@ -178,6 +182,10 @@ Player.prototype.init = function(opts) {
 
   this._bus = dbus.sessionBus();
 
+  this._bus.connection.on('error', (err) => {
+    this.emit('error', err);
+  });
+
   this.interfaces = {};
 
   this._addRootInterface(this._bus, opts);
@@ -191,6 +199,17 @@ Player.prototype.init = function(opts) {
   if (this.supportedInterfaces.indexOf('playlists') >= 0) {
     this._addPlaylistsInterface(this._bus);
   }
+
+  this._bus.requestName(this.serviceName)
+    .then((name) => {
+      for (let k of Object.keys(this.interfaces)) {
+        let iface = this.interfaces[k];
+        name.export(MPRIS_PATH, iface);
+      }
+    })
+    .catch((err) => {
+      this.emit('error', err);
+    });
 };
 
 Player.prototype._addRootInterface = function(bus, opts) {
@@ -199,7 +218,6 @@ Player.prototype._addRootInterface = function(bus, opts) {
     ['Identity', 'Fullscreen', 'SupportedUriSchemes', 'SupportedMimeTypes',
     'CanQuit', 'CanRaise', 'CanSetFullscreen', 'HasTrackList',
     'DesktopEntry']);
-  bus.export(this.serviceName, MPRIS_PATH, this.interfaces.root);
 };
 
 Player.prototype._addPlayerInterface = function(bus) {
@@ -208,7 +226,6 @@ Player.prototype._addPlayerInterface = function(bus) {
     'Metadata', 'Volume', 'CanControl', 'CanPause', 'CanPlay', 'CanSeek',
     'CanGoNext', 'CanGoPrevious', 'MinimumRate', 'MaximumRate'];
   this._addEventedPropertiesList(this.interfaces.player, eventedProps);
-  bus.export(this.serviceName, MPRIS_PATH, this.interfaces.player);
 };
 
 Player.prototype._addTracklistInterface = function(bus) {
@@ -226,15 +243,12 @@ Player.prototype._addTracklistInterface = function(bus) {
     enumerable: true,
     configurable: true
   });
-
-  bus.export(this.serviceName, MPRIS_PATH, this.interfaces.tracklist);
 };
 
 Player.prototype._addPlaylistsInterface = function(bus) {
   this.interfaces.playlists = new PlaylistsInterface(this);
   this._addEventedPropertiesList(this.interfaces.playlists,
     ['PlaylistCount', 'ActivePlaylist']);
-  bus.export(this.serviceName, MPRIS_PATH, this.interfaces.playlists);
 }
 
 /**
