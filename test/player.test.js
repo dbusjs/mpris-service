@@ -3,7 +3,6 @@ const dbus = require('dbus-next');
 const Variant = dbus.Variant;
 const Player = require('../dist');
 const JSBI = require('jsbi');
-let { ping } = require('./fixtures');
 
 const DBusError = dbus.DBusError;
 
@@ -27,10 +26,6 @@ player.on('error', (err) => {
 });
 
 let bus = dbus.sessionBus();
-
-beforeAll(async () => {
-  return await ping(bus);
-});
 
 afterAll(() => {
   player._bus.connection.stream.end();
@@ -81,6 +76,7 @@ test('getting and setting properties on the player and on the interface should w
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.playertest', '/org/mpris/MediaPlayer2');
   let playerIface = obj.getInterface(PLAYER_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
+  let peer = obj.getInterface('org.freedesktop.DBus.Peer');
 
   let cb = jest.fn();
   props.on('PropertiesChanged', cb);
@@ -90,7 +86,7 @@ test('getting and setting properties on the player and on the interface should w
     'xesam:artist': ['Katy Perry'],
     'xesam:title': 'Rise'
   };
-  await ping(bus);
+  await peer.Ping();
   let changed = {
     Metadata: new Variant('a{sv}', {
       'xesam:artist': new Variant('as', ['Katy Perry']),
@@ -105,12 +101,12 @@ test('getting and setting properties on the player and on the interface should w
   // setting the metadata again to the same thing should only emit
   // PropertiesChanged once
   player.metadata = JSON.parse(JSON.stringify(player.metadata));
-  await ping(bus);
+  await peer.Ping();
   expect(cb).toHaveBeenCalledTimes(1);
 
   // PlaybackStatus
   player.playbackStatus = Player.PLAYBACK_STATUS_PAUSED;
-  await ping(bus);
+  await peer.Ping();
   changed = {
     PlaybackStatus: new Variant('s', 'Paused')
   };
@@ -120,7 +116,7 @@ test('getting and setting properties on the player and on the interface should w
 
   // LoopStatus
   player.loopStatus = Player.LOOP_STATUS_TRACK;
-  await ping(bus);
+  await peer.Ping();
   changed = {
     LoopStatus: new Variant('s', 'Track')
   };
@@ -150,7 +146,7 @@ test('getting and setting properties on the player and on the interface should w
   for (let name of doubleProps) {
     let playerName = lcFirst(name);
     player[playerName] = 0.05;
-    await ping(bus);
+    await peer.Ping();
     changed = {};
     changed[name] = new Variant('d', 0.05);
     expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
@@ -178,7 +174,7 @@ test('getting and setting properties on the player and on the interface should w
     let playerName = lcFirst(name);
     let newValue = !player[playerName];
     player[playerName] = newValue;
-    await ping(bus);
+    await peer.Ping();
     changed = {};
     changed[name] = new Variant('b', newValue);
     expect(cb).toHaveBeenLastCalledWith(PLAYER_IFACE, changed, []);
@@ -194,7 +190,7 @@ test('getting and setting properties on the player and on the interface should w
       await props.Set(PLAYER_IFACE, name, new Variant('b', nextNewValue));
       expect(playerCb).toHaveBeenCalledWith(nextNewValue);
       expect(player[playerName]).toEqual(nextNewValue);
-      await ping(bus);
+      await peer.Ping();
     }
   }
 });
@@ -204,6 +200,7 @@ test('position specific properties, methods, and signals should work', async () 
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.playertest', '/org/mpris/MediaPlayer2');
   let playerIface = obj.getInterface(PLAYER_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
+  let peer = obj.getInterface('org.freedesktop.DBus.Peer');
 
   // position defaults to always being 0
   let position = await props.Get(PLAYER_IFACE, 'Position');
@@ -232,6 +229,6 @@ test('position specific properties, methods, and signals should work', async () 
   cb = jest.fn();
   playerIface.once('Seeked', cb);
   player.seeked(200);
-  await ping(bus);
+  await peer.Ping();
   expect(cb).toHaveBeenCalledWith(JSBI.BigInt(200));
 });

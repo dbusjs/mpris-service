@@ -2,7 +2,6 @@ jest.setTimeout(1e4);
 let dbus = require('dbus-next');
 let Variant = dbus.Variant;
 let Player = require('../dist');
-let { ping } = require('./fixtures');
 
 const ROOT_IFACE = 'org.mpris.MediaPlayer2';
 const PLAYER_IFACE = 'org.mpris.MediaPlayer2.Player';
@@ -25,10 +24,6 @@ player.on('error', (err) => {
 
 let bus = dbus.sessionBus();
 
-beforeAll(async () => {
-  return await ping(bus);
-});
-
 afterAll(() => {
   player._bus.connection.stream.end();
   bus.connection.stream.end();
@@ -37,6 +32,12 @@ afterAll(() => {
 test('calling methods should raise a signal on the player', async () => {
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.roottest', '/org/mpris/MediaPlayer2');
   let root = obj.getInterface(ROOT_IFACE);
+
+  if (!root) {
+    // XXX need to wait a beat for the service to start up
+    obj = await bus.getProxyObject('org.mpris.MediaPlayer2.roottest', '/org/mpris/MediaPlayer2');
+    root = obj.getInterface(ROOT_IFACE);
+  }
 
   let cb = jest.fn();
   player.once('quit', cb);
@@ -47,13 +48,13 @@ test('calling methods should raise a signal on the player', async () => {
   player.once('raise', cb);
   await root.Raise();
   expect(cb).toHaveBeenCalledWith();
-  await ping(bus);
 });
 
 test('setting properties on the player should show up on dbus and raise a signal', async () => {
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.roottest', '/org/mpris/MediaPlayer2');
   let root = obj.getInterface(ROOT_IFACE);
   let props = obj.getInterface('org.freedesktop.DBus.Properties');
+  let peer = obj.getInterface('org.freedesktop.DBus.Peer');
 
   let cb = jest.fn();
   props.on('PropertiesChanged', cb);
@@ -66,7 +67,7 @@ test('setting properties on the player should show up on dbus and raise a signal
     expect(gotten).toEqual(new Variant('as', player[playerName]));
     let newValue = ['foo', 'bar'];
     player[playerName] = newValue;
-    await ping(bus);
+    await peer.Ping();
     let changed = {};
     changed[name] = new Variant('as', newValue);
     expect(cb).toHaveBeenLastCalledWith(ROOT_IFACE, changed, []);
@@ -78,7 +79,7 @@ test('setting properties on the player should show up on dbus and raise a signal
     let playerName = lcFirst(name);
     let newValue = !player[playerName];
     player[playerName] = newValue;
-    await ping(bus);
+    await peer.Ping();
     changed = {};
     changed[name] = new Variant('b', newValue);
     expect(cb).toHaveBeenCalledWith(ROOT_IFACE, changed, []);
@@ -92,7 +93,7 @@ test('setting properties on the player should show up on dbus and raise a signal
     let playerName = lcFirst(name);
     let newValue = 'foo';
     player[playerName] = newValue;
-    await ping(bus);
+    await peer.Ping();
     changed = {};
     changed[name] = new Variant('s', newValue);
     expect(cb).toHaveBeenCalledWith(ROOT_IFACE, changed, []);
@@ -105,10 +106,10 @@ test('setting properties on the player should show up on dbus and raise a signal
   expect(gotten).toEqual(new Variant('b', player.fullscreen));
   let newValue = !player.fullscreen;
   player.fullscreen = newValue;
-  await ping(bus);
+  await peer.Ping();
   changed = {
     Fullscreen: new Variant('b', newValue)
   };
   expect(cb).toHaveBeenLastCalledWith(ROOT_IFACE, changed, []);
-  await ping(bus);
+  await peer.Ping();
 });
