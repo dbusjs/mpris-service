@@ -200,15 +200,30 @@ Player.prototype.init = function(opts) {
     this._addPlaylistsInterface(this._bus);
   }
 
-  this._bus.requestName(this.serviceName)
-    .then((name) => {
+  let exportInterfaces = (name) => {
       for (let k of Object.keys(this.interfaces)) {
         let iface = this.interfaces[k];
         name.export(MPRIS_PATH, iface);
       }
-    })
+  };
+
+  let emitError = (err) => {
+    this.emit('error', err);
+  };
+
+  this._bus.requestName(this.serviceName, dbus.DBUS_NAME_FLAG_DO_NOT_QUEUE)
+    .then(exportInterfaces)
     .catch((err) => {
-      this.emit('error', err);
+      if (err instanceof dbus.NameExistsError) {
+        // if the name exists, try to take a name for the instance per the spec.
+        // https://specifications.freedesktop.org/mpris-spec/latest/#Bus-Name-Policy
+        this.serviceName = `${this.serviceName}.instance${process.pid}`;
+        this._bus.requestName(this.serviceName)
+          .then(exportInterfaces)
+          .catch(emitError);
+      } else {
+        emitError(err);
+      }
     });
 };
 
