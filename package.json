@@ -47,6 +47,9 @@
     "jsdoc": "^3.5.5",
     "regenerator-runtime": "^0.13.1"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "engine": {
     "node": ">=6.3.0"
   }
