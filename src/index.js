@@ -182,7 +182,7 @@ Player.prototype.init = function(opts) {
 
   this._bus = dbus.sessionBus();
 
-  this._bus.connection.on('error', (err) => {
+  this._bus.on('error', (err) => {
     this.emit('error', err);
   });
 

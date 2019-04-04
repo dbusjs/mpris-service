@@ -27,8 +27,8 @@ player.on('error', (err) => {
 let bus = dbus.sessionBus();
 
 afterAll(() => {
-  player._bus.connection.stream.end();
-  bus.connection.stream.end();
+  player._bus.disconnect();
+  bus.disconnect();
 });
 
 test('creating a player exports the playlists interfaces on the bus', async () => {

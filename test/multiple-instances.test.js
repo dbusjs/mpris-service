@@ -33,9 +33,9 @@ player2.on('error', errorHandler);
 let bus = dbus.sessionBus();
 
 afterAll(() => {
-  player1._bus.connection.stream.end();
-  player2._bus.connection.stream.end();
-  bus.connection.stream.end();
+  player1._bus.disconnect();
+  player2._bus.disconnect();
+  bus.disconnect();
 });
 
 test('creating two players with the same name on the same bus should create the second one as an instance', async () => {
