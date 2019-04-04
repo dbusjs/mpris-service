@@ -25,13 +25,13 @@ player.on('error', (err) => {
 let bus = dbus.sessionBus();
 
 afterAll(() => {
-  player._bus.connection.stream.end();
-  bus.connection.stream.end();
+  player._bus.disconnect();
+  bus.disconnect();
 });
 
 test('calling methods should raise a signal on the player', async () => {
   let obj = await bus.getProxyObject('org.mpris.MediaPlayer2.roottest', '/org/mpris/MediaPlayer2');
-  let root = obj.getInterface(ROOT_IFACE);
+  let root = obj.interfaces[ROOT_IFACE];
 
   if (!root) {
     // XXX need to wait a beat for the service to start up

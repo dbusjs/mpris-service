@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/emersion/mpris-service",
   "dependencies": {
-    "dbus-next": "^0.4.2",
+    "dbus-next": "^0.5.1",
     "deep-equal": "^1.0.1",
     "source-map-support": "^0.5.9"
   },
