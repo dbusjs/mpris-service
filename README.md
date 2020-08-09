@@ -4,7 +4,9 @@
 
 Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service.
 
-Docs: http://specifications.freedesktop.org/mpris-spec/latest/
+[Documentation](http://specifications.freedesktop.org/mpris-spec/latest/)
+
+[Chat](https://discord.gg/UdbXHVX)
 
 ```js
 var Player = require('mpris-service');
