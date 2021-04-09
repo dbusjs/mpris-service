@@ -42,7 +42,7 @@
     "gulp-babel": "^8.0.0",
     "gulp-cli": "^2.1.0",
     "gulp-sourcemaps": "^2.6.4",
-    "jest": "^26.6.3",
+    "jest": "^24.1.0",
     "jsbi": "^2.0.5",
     "jsdoc": "^3.6.6",
     "regenerator-runtime": "^0.13.1"
