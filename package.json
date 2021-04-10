@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/emersion/mpris-service.git"
+    "url": "https://github.com/dbusjs/mpris-service.git"
   },
   "keywords": [
     "mpris",
@@ -23,9 +23,9 @@
   "author": "emersion",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/emersion/mpris-service/issues"
+    "url": "https://github.com/dbusjs/mpris-service/issues"
   },
-  "homepage": "https://github.com/emersion/mpris-service",
+  "homepage": "https://github.com/dbusjs/mpris-service",
   "dependencies": {
     "dbus-next": "^0.9.2",
     "deep-equal": "^1.0.1",

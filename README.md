@@ -1,6 +1,6 @@
 # mpris-service
 
-[![Build Status](https://travis-ci.org/emersion/mpris-service.svg?branch=master)](https://travis-ci.org/emersion/mpris-service)
+[![Build Status](https://travis-ci.org/dbusjs/mpris-service.svg?branch=master)](https://travis-ci.org/dbusjs/mpris-service)
 
 Node.js implementation for the MPRIS D-Bus Interface Specification to create a mediaplayer service.
 
@@ -26,7 +26,7 @@ Implemented interfaces:
 * [`org.mpris.MediaPlayer2.TrackList`](http://specifications.freedesktop.org/mpris-spec/latest/Track_List_Interface.html)
 * [`org.mpris.MediaPlayer2.Playlists`](http://specifications.freedesktop.org/mpris-spec/latest/Playlists_Interface.html)
 
-Examples are available in [`examples/`](https://github.com/emersion/mpris-service/tree/master/examples).
+Examples are available in [`examples/`](https://github.com/dbusjs/mpris-service/tree/master/examples).
 
 ## Default interface
 
