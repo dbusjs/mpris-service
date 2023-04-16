@@ -6,9 +6,10 @@ const constants = require('../constants');
 const logging = require('../logging');
 
 let {
-  Interface, property, method, signal, DBusError,
+  Interface, property, method, signal, 
   ACCESS_READ, ACCESS_WRITE, ACCESS_READWRITE
 } = dbus.interface;
+let DBusError = dbus.DBusError;
 
 class MprisInterface extends Interface {
   constructor(name, player) {

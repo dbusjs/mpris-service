@@ -5,9 +5,10 @@ let Variant = dbus.Variant;
 let types = require('./types');
 
 let {
-  property, method, signal, DBusError,
+  property, method, signal, 
   ACCESS_READ, ACCESS_WRITE, ACCESS_READWRITE
 } = dbus.interface;
+let DBusError = dbus.DBusError;
 
 class PlaylistsInterface extends MprisInterface {
   constructor(player) {
