@@ -5,9 +5,11 @@ const JSBI = require('jsbi');
 const constants = require('../constants');
 
 let {
-  property, method, signal, DBusError,
+  property, method, signal, 
   ACCESS_READ, ACCESS_WRITE, ACCESS_READWRITE
 } = dbus.interface;
+
+let DBusError = dbus.DBusError;
 
 class PlayerInterface extends MprisInterface {
   constructor(player) {
